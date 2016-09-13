@@ -1,0 +1,67 @@
+language: cpp
+os:
+- linux
+- osx
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+    - g++-4.8-multilib
+    - gcc-multilib
+    - build-essential
+    - libbluetooth-dev
+    - libudev-dev
+    - libusb-1.0-0-dev
+env:
+  global:
+  - DEBUG_CORE_DUMP="true"
+  matrix:
+  - PACKAGER_NODE_VERSION="5.5" PACKAGER_ARCH="amd64" MAIN_BUILD="true"
+  - PACKAGER_NODE_VERSION="5.5" PACKAGER_ARCH="386"
+matrix:
+  fast_finish: true
+  exclude:
+  - os: osx
+    env: PACKAGER_NODE_VERSION="5.5" PACKAGER_ARCH="386"
+branches:
+  only:
+  - "/^v[0-9]/"
+before_install:
+- ulimit -c unlimited -S
+- PACKAGER_URL="https://meshblu-connector.octoblu.com/tools/packager/latest"
+- curl -fsS "${PACKAGER_URL}/travis_install_node.sh" -o /tmp/travis_install_node.sh
+- chmod +x /tmp/travis_install_node.sh
+- ". /tmp/travis_install_node.sh"
+- if [ "$TRAVIS_OS_NAME" == "linux" -a "$MAIN_BUILD" == "true" ]; then export NPM_PUBLISH="true"; fi
+install:
+- npm install --build-from-source
+script:
+- npm test
+before_deploy:
+- npm prune --production
+- npm install meshblu-connector-packager
+- npm dedupe
+- npm install -g flatten-packages
+- flatten-packages
+- npm run generate:package
+- npm run generate:schema
+- cp schemas.json deploy
+deploy:
+- provider: releases
+  api_key:
+    secure: "sgsMypPCcSYVXu40U+utZZ0akfriJqVDyQRPE+QAjZV4MwZFAAqmBXiNtuyznbM0WXDugdsE2mc70/swatrE37slmu7QEMVGVyEnkAnI2c7nbpKz6r1AMQjIQ7SiarxrfprGWPgPXpiy78muxoIjqxrwPH2vmlgAY0GdTuxdP233TBLm7zDRJnRs7MJTf41iyu4YV6VjGicMigLKYR+bl6Iz9rAzbzTOYadAza4kaGo2Gj2QJtQHG+EyPuq3dKOWnl3uolmWgohLcU6DJAu8xfnBnIT2bMN/l5dj4tgZSRmZEP/rtfzhqKkRqrnnIR4NcYaOtTaGZEM/3ScpQTGUXgb9YHmBeMOZQaLsVDRD+KQco1nxbTdy98q/11NIfiVTXVYVmSxOZUUuwYfVd7e5B7f0/ERh4m2xetsF8Rfnh5tr+rtLEqarkBeW/KCvRyt3nPDFFRRsOY9rCvXvemzZ3GiyykV/why5L7+/WXMv25cKhPnVl+YyZ09EPSzHhxEDGlhdN0tozhgF+NWTyl42pWliH2hDj4mjHZSvtU39eEmFL1rI4+azc5i9aPEfVfnvkQK7jlHRYo98EoLzWjNkFNPyALJSuBncvCpl6Dd/oMVRfDHr/4nhnM1a7S2yZD6NNhtIoWcUG+h9Y7iu40Uu5RhRG67YkIQUwTC2jr2F8tM="
+  file_glob: true
+  file:
+  - "deploy/*"
+  skip_cleanup: true
+  on:
+    tags: true
+- provider: npm
+  email: serveradmin@octoblu.com
+  api_key:
+    secure: "EWArkRISYEoB72xI+7FylVtoOfmuGBWliSNixYIaLtVN6nKZeM/WM6h/f91g41Z3TR25qEworms7qFnUwlxnMWDPe0Rx6Jcmr6NOiW5C5g2y8O7/fgJ2nGXrzo4Wp5iEpssIRsU/Wtxiay95SRcK5rXwsOz5pW/vnabFXCa43B8q7mSvhzmQX3a2Zzj2LkbAIzy3rsxUgM7klLhY90LyAS8lOP+vrFpwXShCrUB2E5/R/QcH1unxmaZ4Vn0a6o1+O5reaC/+tGHZS7ZdGCu79JsUUwg+BHjD8kiHwwcC7LWDLbo4CUPBvV0Tn9YBKtnJUA6mWCj0V9s6uBVuyYtrc3lunjgyyPPzcQ1Oz1mSD9Lg8Qu3StxFKax20X6m7BwbGgXL7mEhQxtH/5vsqyOLKYxvBj9g823+ApThurmQnEc90DeLtYIu3HGfeInlVFztVItDQOhjb95dr4tsIXuyZMssWbbimfCBRBCoCLuyGiD4c9/TcXWtT+ppWbTGjdlyf6kD7ABXbofOlNpsAnt2H6Jv2+ETUo2sz1wi/gAzW0nKrLZG+8BA8fAACyXN6Hkt/nsEvpKOJJCjyQcMfF+Zr5oTMeFwIBHYACMb5WEy7a4qYJUOq/YlRLLvlf6740KuGR2arDvZsd3uR0s3gHncfNSzZBxyhlrlmAVTr/c+nPs="
+  on:
+    tags: true
+    condition: "$NPM_PUBLISH = true"

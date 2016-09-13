@@ -1,0 +1,54 @@
+{
+  "name": "meshblu-connector-skype",
+  "version": "1.0.0",
+  "description": "Meshblu Connector ",
+  "homepage": "https://github.com/octoblu/meshblu-connector-skype",
+  "bugs": "https://github.com/octoblu/meshblu-connector-skype/issues",
+  "author": {
+    "name": "Octoblu",
+    "url": "https://github.com/octoblu"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/octoblu/meshblu-connector-skype.git"
+  },
+  "scripts": {
+    "start": "meshblu-connector-runner",
+    "test": "mocha",
+    "generate:package": "meshblu-connector-packager",
+    "generate:schema": "meshblu-connector-schema-generator > schemas.json"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "coffee-coverage": "^1.0.1",
+    "mocha": "^2.4.5",
+    "segfault-handler": "^1.0.0",
+    "sinon": "^1.17.3",
+    "sinon-chai": "^2.8.0"
+  },
+  "dependencies": {
+    "coffee-script": "^1.10.0",
+    "debug": "^2.2.0",
+    "fs-cson": "^0.3.2",
+    "meshblu-config": "^4.0.0",
+    "meshblu-connector-runner": "^8.1.0",
+    "meshblu-connector-schema-generator": "^2.1.0"
+  },
+  "meshbluConnector": {
+    "githubSlug": "octoblu/meshblu-connector-skype"
+  },
+  "platformDependencies": {
+    "darwin": [],
+    "win32": [],
+    "win64": [],
+    "linux": [],
+    "android": null,
+    "ios": null
+  },
+  "license": "MIT",
+  "keywords": [
+    "meshblu-connector",
+    "gateblu"
+  ]
+}
