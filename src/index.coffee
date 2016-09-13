@@ -18,12 +18,12 @@ class Connector extends EventEmitter
 
   start: (device, callback) =>
     debug 'started'
-    @fullScreen()
+    @startConversation()
     @onConfig device
     callback()
 
-  fullScreen: () =>
-    Lync.goFullScreen null, (error, result) =>
+  startConversation: () =>
+    Lync.startConversation null, (error, result) =>
       throw error if error
       console.log result
 
