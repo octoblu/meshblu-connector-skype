@@ -1,5 +1,6 @@
 {EventEmitter}  = require 'events'
 debug           = require('debug')('meshblu-connector-skype:index')
+Lync            = require './lync-manager'
 
 class Connector extends EventEmitter
   constructor: ->
@@ -17,7 +18,14 @@ class Connector extends EventEmitter
 
   start: (device, callback) =>
     debug 'started'
+    @fullScreen()
     @onConfig device
     callback()
+
+  fullScreen: () =>
+    Lync.goFullScreen null, (error, result) =>
+      throw error if error
+      console.log result
+
 
 module.exports = Connector

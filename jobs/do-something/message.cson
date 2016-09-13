@@ -4,8 +4,8 @@ properties:
   data:
     type: 'object'
     properties:
-      example:
+      blarg:
         type: 'string'
     required: [
-      'example'
+      'blarg'
     ]
