@@ -1,4 +1,5 @@
 angular: [
   { key: "options.url" }
   { key: "options.state" }
+  { key: "options.enable_video" }
 ]

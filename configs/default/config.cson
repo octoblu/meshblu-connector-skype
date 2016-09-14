@@ -16,7 +16,12 @@ properties:
           'End Meeting'
         ]
         default: "End Meeting"
+      enable_video:
+        title: "Enable Video"
+        type: "boolean"
+        default: true
     required: [
       "url"
       "state"
+      "enable_video"
     ]

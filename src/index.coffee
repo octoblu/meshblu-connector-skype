@@ -19,10 +19,10 @@ class Connector extends EventEmitter
     @handleStateChange @options
 
   handleStateChange: (options={}) =>
-    { url, state } = options
-    return @endMeeting(@conversationId) if state == "End Meeting" && @conversationId?
+    { url, state, enable_video } = options
+    return @stopAllMeetings() if state == "End Meeting"
     return @startConversation() if !url? && state == "Join Meeting"
-    return @joinMeeting url if url? && state == "Join Meeting"
+    return @joinMeeting(url, enable_video) if url? && state == "Join Meeting"
 
   start: (device, callback) =>
     debug 'started'
@@ -30,8 +30,13 @@ class Connector extends EventEmitter
     @onConfig device
     callback()
 
-  joinMeeting: (url) =>
-    Lync.joinMeeting url, (error, result) =>
+  joinMeeting: (url, enable_video=true) =>
+    input = {
+      JoinUrl: url
+      EnableVideo: enable_video
+    }
+
+    Lync.joinMeeting input, (error, result) =>
       throw error if error
       @conversationId = result
 
@@ -46,11 +51,10 @@ class Connector extends EventEmitter
       debug result
       @conversationId = null
 
-  stopAllMeetings: (callback) =>
-    Lync.stopAllMeetings id, (error, result) =>
+  stopAllMeetings: () =>
+    Lync.stopAllMeetings null, (error, result) =>
       throw error if error
       @conversationId = null
-      callback result
 
 
 
