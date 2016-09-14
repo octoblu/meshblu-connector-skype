@@ -14,6 +14,9 @@ startConversation = edge.func
   source: () =>
     ###
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Lync.Model;
     using Microsoft.Lync.Model.Conversation;
@@ -22,25 +25,30 @@ startConversation = edge.func
 
     public class Startup
     {
-      private ConversationWindow _ConversationWindow = null;
-      private Conversation _Conversation = null;
+      private Conversation conversation = null;
+      private ConversationWindow conversationWindow = null;
+      private string conversationId = null;
 
-      public async Task<object> Invoke(object input)
+      public async Task<object> Invoke(string input)
       {
-        var Automation = LyncClient.GetAutomation();
+        Automation automation = LyncClient.GetAutomation();
         var Client = LyncClient.GetClient();
 
-        Automation.BeginMeetNow((ar) =>
-        {
-          _ConversationWindow = Automation.EndMeetNow(ar);
-          _Conversation = _ConversationWindow.Conversation;
+        IAsyncResult ar = automation.BeginMeetNow((result) => { }, null);
+        conversationWindow = automation.EndMeetNow(ar);
+        conversation = conversationWindow.Conversation;
+        conversationId = conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
+        conversation.StateChanged += HandleStateChange;
+        return conversationId;
+      }
 
-          var id = _ConversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
-          Console.WriteLine(id);
-        },
-        null);
-
-        return "success";
+      public void HandleStateChange(object Sender, ConversationStateChangedEventArgs e)
+      {
+        if(e.NewState.ToString() == "Active"){
+          Thread.Sleep(2000);
+          conversationWindow.ShowContent();
+          conversationWindow.ShowFullScreen(0);
+        }
       }
     }
     ###
@@ -48,6 +56,52 @@ startConversation = edge.func
 
 
 joinMeeting = edge.func
+  source: () =>
+    ###
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.Lync.Model;
+    using Microsoft.Lync.Model.Conversation;
+    using Microsoft.Lync.Model.Extensibility;
+
+
+    public class Startup
+    {
+      private Conversation conversation = null;
+      private ConversationWindow conversationWindow = null;
+      private string conversationId = null;
+
+      public async Task<object> Invoke(string JoinUrl)
+      {
+        Automation automation = LyncClient.GetAutomation();
+        var Client = LyncClient.GetClient();
+        JoinUrl = JoinUrl + '?';
+
+        IAsyncResult ar = automation.BeginStartConversation(JoinUrl, 0, (result) => { }, null);
+        conversationWindow = automation.EndStartConversation(ar);
+        conversation = conversationWindow.Conversation;
+        conversationId = conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
+        conversation.StateChanged += HandleStateChange;
+
+        return conversationId;
+      }
+
+      public void HandleStateChange(object Sender, ConversationStateChangedEventArgs e)
+      {
+        if(e.NewState.ToString() == "Active"){
+          Thread.Sleep(2000);
+          conversationWindow.ShowContent();
+          conversationWindow.ShowFullScreen(0);
+        }
+      }
+    }
+    ###
+  references: references
+
+stopMeeting = edge.func
   source: () =>
     ###
     using System;
@@ -61,44 +115,48 @@ joinMeeting = edge.func
 
     public class Startup
     {
-      private ConversationWindow _ConversationWindow = null;
-      private Conversation _Conversation = null;
-
-      public async Task<object> Invoke(string JoinUrl)
+      public async Task<object> Invoke(string conversationId)
       {
-
-        var Automation = LyncClient.GetAutomation();
         var Client = LyncClient.GetClient();
-        JoinUrl = JoinUrl + '?';
+        var currentConversation = Client.ConversationManager.Conversations.Where(c => c.Properties[ConversationProperty.Id].ToString() == conversationId).FirstOrDefault();
 
-        Automation.BeginStartConversation(JoinUrl, 0, (ar) =>
-        {
-          _ConversationWindow = Automation.EndStartConversation(ar);
-          _Conversation = _ConversationWindow.Conversation;
-          var conversationId = _ConversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
-
-          _Conversation.StateChanged += HandleStateChange;
-        },
-        null);
-
-        return 5 + 5;
+        currentConversation.End();
+        return !false;
       }
 
-      public void HandleStateChange(object Sender, ConversationStateChangedEventArgs e)
+    }
+    ###
+  references: references
+
+stopAllMeetings = edge.func
+  source: () =>
+    ###
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.Lync.Model;
+    using Microsoft.Lync.Model.Conversation;
+    using Microsoft.Lync.Model.Extensibility;
+
+    public class Startup
+    {
+      public async Task<object> Invoke(string conversationId)
       {
-        if(e.NewState.ToString() == "Active"){
-          Console.WriteLine("Going");
-          var Automation = LyncClient.GetAutomation();
-          Automation.GetConversationWindow(_Conversation).ShowFullScreen(0);
-        }
+        var Client = LyncClient.GetClient();
+        Client.ConversationManager.Conversations.ToList().ForEach(c => {
+          c.End();
+        });
+        return !false;
       }
     }
     ###
   references: references
 
 
-
 module.exports = {
   startConversation: startConversation
   joinMeeting: joinMeeting
+  stopMeeting: stopMeeting
+  stopAllMeetings: stopAllMeetings
 }

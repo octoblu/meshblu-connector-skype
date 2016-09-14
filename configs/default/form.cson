@@ -1,3 +1,4 @@
 angular: [
-  { key: "options.example" }
+  { key: "options.url" }
+  { key: "options.state" }
 ]

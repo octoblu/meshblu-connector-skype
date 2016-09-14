@@ -5,9 +5,18 @@ properties:
     title: "Options"
     type: "object"
     properties:
-      example:
-        title: "Example String"
+      url:
+        title: "Meeting Url"
         type: "string"
+      state:
+        title: "State"
+        type: "string"
+        "enum": [
+          'Join Meeting'
+          'End Meeting'
+        ]
+        default: "End Meeting"
     required: [
-      "example"
+      "url"
+      "state"
     ]
