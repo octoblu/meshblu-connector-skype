@@ -1,0 +1,11 @@
+title: 'Join Meeting'
+type: 'object'
+properties:
+  data:
+    type: 'object'
+    properties:
+      url:
+        type: 'string'
+    required: [
+      'url'
+    ]

@@ -18,9 +18,13 @@ class Connector extends EventEmitter
 
   start: (device, callback) =>
     debug 'started'
-    @startConversation()
     @onConfig device
     callback()
+
+  joinMeeting: (url) =>
+    Lync.joinMeeting url, (error, result) =>
+      throw error if error
+      console.log result
 
   startConversation: () =>
     Lync.startConversation null, (error, result) =>
