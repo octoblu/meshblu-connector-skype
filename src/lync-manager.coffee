@@ -43,10 +43,10 @@ joinMeeting = edge.func
 
         if(JoinUrl != null){
           JoinUrl = JoinUrl + '?';
-          IAsyncResult ar = automation.BeginStartConversation(JoinUrl, 0, (result) => { }, null);
+          var state = new Object();
+          IAsyncResult ar = automation.BeginStartConversation(JoinUrl, 0, (result) => { }, state);
           conversationWindow = automation.EndStartConversation(ar);
-        }else if(JoinUrl == null)
-        {
+        }else if(JoinUrl == null){
           EnableVideo = false;
           var state = new Object();
           IAsyncResult ar = automation.BeginMeetNow((result) => { }, state);
@@ -115,39 +115,29 @@ stopMeetings = edge.func
         var Client = LyncClient.GetClient();
 
         if(conversationId != null){
-          var currentConversation = Client.ConversationManager.Conversations.Where(c => c.Properties[ConversationProperty.Id].ToString() == conversationId).FirstOrDefault();
-          StopVideo(currentConversation);
-        }else{
+          Conversation conversation = Client.ConversationManager.Conversations.Where(c => c.Properties[ConversationProperty.Id].ToString() == conversationId).FirstOrDefault();
+          stopConversation(conversation);
+
+        }else if(conversationId == null){
           Client.ConversationManager.Conversations.ToList().ForEach(c => {
-            StopVideo(c);
+            stopConversation(c);
           });
         }
         return !false;
       }
 
-      public void StopVideo(Conversation conver){
-        var videoChannel = ((AVModality)conver.Modalities[ModalityTypes.AudioVideo]).VideoChannel;
-        if (videoChannel.CanInvoke(ChannelAction.Stop))
-        {
-            IAsyncResult ar = videoChannel.BeginStop((result) => { }, videoChannel);
-            ((VideoChannel)ar.AsyncState).EndStart(ar);
+      private void stopConversation(Conversation conversation){
+        Automation automation = LyncClient.GetAutomation();
+
+        var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+        if(avModality.CanInvoke(ModalityAction.Disconnect)){
+            IAsyncResult ar = avModality.BeginDisconnect(ModalityDisconnectReason.None,(result) => { }, null);
+            avModality.EndDisconnect(ar);
         }
 
-        disconnectModality(conver);
-      }
-
-      public void disconnectModality(Conversation conver){
-        var avModality = ((AVModality)conver.Modalities[ModalityTypes.AudioVideo]);
-
-        Console.WriteLine(avModality.CanInvoke(ModalityAction.Disconnect));
-
-        if(avModality.CanInvoke(ModalityAction.Disconnect))
-        {
-          var state = new Object();
-          IAsyncResult ar = avModality.BeginDisconnect(ModalityDisconnectReason.None, (result) => { }, state);
-          conver.End();
-        }
-        conver.End();
+        var window = automation.GetConversationWindow(conversation);
+        window.Close();
+        conversation.End();
       }
     }
     ###

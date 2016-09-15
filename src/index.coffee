@@ -20,7 +20,6 @@ class Connector extends EventEmitter
 
   handleStateChange: (options={}) =>
     { url, state, enable_video } = options
-    console.log options
     return @stopMeetings(null) if state == "End Meeting"
     return @joinMeeting(url, enable_video) if state == "Join Meeting"
 
@@ -37,13 +36,11 @@ class Connector extends EventEmitter
 
     Lync.joinMeeting input, (error, result) =>
       throw error if error
-      console.log result
       @conversationId = result
 
   stopMeetings: (id) =>
     Lync.stopMeetings id, (error, result) =>
       throw error if error
-      console.log result
       @conversationId = null
 
 
