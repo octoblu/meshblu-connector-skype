@@ -10,50 +10,6 @@ references = [
   'Microsoft.Office.Uc.dll'
 ]
 
-startConversation = edge.func
-  source: () =>
-    ###
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Lync.Model;
-    using Microsoft.Lync.Model.Conversation;
-    using Microsoft.Lync.Model.Extensibility;
-
-
-    public class Startup
-    {
-      private Conversation conversation = null;
-      private ConversationWindow conversationWindow = null;
-      private string conversationId = null;
-
-      public async Task<object> Invoke(string input)
-      {
-        Automation automation = LyncClient.GetAutomation();
-        var Client = LyncClient.GetClient();
-
-        IAsyncResult ar = automation.BeginMeetNow((result) => { }, null);
-        conversationWindow = automation.EndMeetNow(ar);
-        conversation = conversationWindow.Conversation;
-        conversationId = conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
-        conversation.StateChanged += HandleStateChange;
-        return conversationId;
-      }
-
-      public void HandleStateChange(object Sender, ConversationStateChangedEventArgs e)
-      {
-        if(e.NewState.ToString() == "Active"){
-          Thread.Sleep(2000);
-          conversationWindow.ShowContent();
-          conversationWindow.ShowFullScreen(0);
-        }
-      }
-    }
-    ###
-  references: references
-
 
 joinMeeting = edge.func
   source: () =>
@@ -74,19 +30,29 @@ joinMeeting = edge.func
       private Conversation conversation = null;
       private ConversationWindow conversationWindow = null;
       private string conversationId = null;
-      private VideoChannel _VideoChannel;
+      private VideoChannel _VideoChannel = null;
       private bool EnableVideo = false;
 
       public async Task<object> Invoke(dynamic input)
       {
-        string JoinUrl = (string)input.JoinUrl + '?';
+        string JoinUrl = (string)input.JoinUrl;
         EnableVideo = (bool)input.EnableVideo;
 
         Automation automation = LyncClient.GetAutomation();
         var Client = LyncClient.GetClient();
 
-        IAsyncResult ar = automation.BeginStartConversation(JoinUrl, 0, (result) => { }, null);
-        conversationWindow = automation.EndStartConversation(ar);
+        if(JoinUrl != null){
+          JoinUrl = JoinUrl + '?';
+          IAsyncResult ar = automation.BeginStartConversation(JoinUrl, 0, (result) => { }, null);
+          conversationWindow = automation.EndStartConversation(ar);
+        }else if(JoinUrl == null)
+        {
+          EnableVideo = false;
+          var state = new Object();
+          IAsyncResult ar = automation.BeginMeetNow((result) => { }, state);
+          conversationWindow = automation.EndMeetNow(ar);
+        }
+
         conversation = conversationWindow.Conversation;
         conversationId = conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
         conversation.StateChanged += HandleStateChange;
@@ -97,7 +63,7 @@ joinMeeting = edge.func
       public void HandleStateChange(object Sender, ConversationStateChangedEventArgs e)
       {
         if(e.NewState.ToString() == "Active"){
-          Thread.Sleep(2000);
+          Thread.Sleep(3000);
           conversationWindow.ShowContent();
           conversationWindow.ShowFullScreen(0);
 
@@ -128,53 +94,60 @@ joinMeeting = edge.func
     ###
   references: references
 
-stopMeeting = edge.func
+
+stopMeetings = edge.func
   source: () =>
     ###
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Lync.Model;
     using Microsoft.Lync.Model.Conversation;
+    using Microsoft.Lync.Model.Conversation.AudioVideo;
     using Microsoft.Lync.Model.Extensibility;
-
 
     public class Startup
     {
       public async Task<object> Invoke(string conversationId)
       {
         var Client = LyncClient.GetClient();
-        var currentConversation = Client.ConversationManager.Conversations.Where(c => c.Properties[ConversationProperty.Id].ToString() == conversationId).FirstOrDefault();
 
-        currentConversation.End();
+        if(conversationId != null){
+          var currentConversation = Client.ConversationManager.Conversations.Where(c => c.Properties[ConversationProperty.Id].ToString() == conversationId).FirstOrDefault();
+          StopVideo(currentConversation);
+        }else{
+          Client.ConversationManager.Conversations.ToList().ForEach(c => {
+            StopVideo(c);
+          });
+        }
         return !false;
       }
 
-    }
-    ###
-  references: references
+      public void StopVideo(Conversation conver){
+        var videoChannel = ((AVModality)conver.Modalities[ModalityTypes.AudioVideo]).VideoChannel;
+        if (videoChannel.CanInvoke(ChannelAction.Stop))
+        {
+            IAsyncResult ar = videoChannel.BeginStop((result) => { }, videoChannel);
+            ((VideoChannel)ar.AsyncState).EndStart(ar);
+        }
 
-stopAllMeetings = edge.func
-  source: () =>
-    ###
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Microsoft.Lync.Model;
-    using Microsoft.Lync.Model.Conversation;
-    using Microsoft.Lync.Model.Extensibility;
+        disconnectModality(conver);
+      }
 
-    public class Startup
-    {
-      public async Task<object> Invoke(string input)
-      {
-        var Client = LyncClient.GetClient();
-        Client.ConversationManager.Conversations.ToList().ForEach(c => {
-          c.End();
-        });
-        return !false;
+      public void disconnectModality(Conversation conver){
+        var avModality = ((AVModality)conver.Modalities[ModalityTypes.AudioVideo]);
+
+        Console.WriteLine(avModality.CanInvoke(ModalityAction.Disconnect));
+
+        if(avModality.CanInvoke(ModalityAction.Disconnect))
+        {
+          var state = new Object();
+          IAsyncResult ar = avModality.BeginDisconnect(ModalityDisconnectReason.None, (result) => { }, state);
+          conver.End();
+        }
+        conver.End();
       }
     }
     ###
@@ -182,8 +155,6 @@ stopAllMeetings = edge.func
 
 
 module.exports = {
-  startConversation: startConversation
   joinMeeting: joinMeeting
-  stopMeeting: stopMeeting
-  stopAllMeetings: stopAllMeetings
+  stopMeetings: stopMeetings
 }

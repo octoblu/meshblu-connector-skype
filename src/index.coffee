@@ -20,17 +20,16 @@ class Connector extends EventEmitter
 
   handleStateChange: (options={}) =>
     { url, state, enable_video } = options
-    return @stopAllMeetings() if state == "End Meeting"
-    return @startConversation() if !url? && state == "Join Meeting"
-    return @joinMeeting(url, enable_video) if url? && state == "Join Meeting"
+    console.log options
+    return @stopMeetings(null) if state == "End Meeting"
+    return @joinMeeting(url, enable_video) if state == "Join Meeting"
 
   start: (device, callback) =>
     debug 'started'
-    # @joinMeeting("https://meet.citrix.com/moheeb.zara/4KBKB5SJ");
     @onConfig device
     callback()
 
-  joinMeeting: (url, enable_video=true) =>
+  joinMeeting: (url=null, enable_video=true) =>
     input = {
       JoinUrl: url
       EnableVideo: enable_video
@@ -38,22 +37,13 @@ class Connector extends EventEmitter
 
     Lync.joinMeeting input, (error, result) =>
       throw error if error
+      console.log result
       @conversationId = result
 
-  startConversation: () =>
-    Lync.startConversation null, (error, result) =>
+  stopMeetings: (id) =>
+    Lync.stopMeetings id, (error, result) =>
       throw error if error
-      @conversationId = result
-
-  endMeeting: (id) =>
-    Lync.stopMeeting id, (error, result) =>
-      throw error if error
-      debug result
-      @conversationId = null
-
-  stopAllMeetings: () =>
-    Lync.stopAllMeetings null, (error, result) =>
-      throw error if error
+      console.log result
       @conversationId = null
 
 
