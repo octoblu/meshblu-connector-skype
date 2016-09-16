@@ -1,11 +1,14 @@
 # meshblu-connector-skype
 
+[![Build Status](https://travis-ci.org/octoblu/meshblu-connector-skype.svg?branch=master)](https://travis-ci.org/octoblu/meshblu-connector-skype)
+[![Test Coverage](https://codecov.io/gh/octoblu/meshblu-connector-skype/branch/master/graph/badge.svg)](https://codecov.io/gh/octoblu/meshblu-connector-skype)
 [![Dependency status](http://img.shields.io/david/octoblu/meshblu-connector-skype.svg?style=flat)](https://david-dm.org/octoblu/meshblu-connector-skype)
 [![devDependency Status](http://img.shields.io/david/dev/octoblu/meshblu-connector-skype.svg?style=flat)](https://david-dm.org/octoblu/meshblu-connector-skype#info=devDependencies)
-[![Build Status](http://img.shields.io/travis/octoblu/meshblu-connector-skype.svg?style=flat&branch=master)](https://travis-ci.org/octoblu/meshblu-connector-skype)
 [![Slack Status](http://community-slack.octoblu.com/badge.svg)](http://community-slack.octoblu.com)
 
 [![NPM](https://nodei.co/npm/meshblu-connector-skype.svg?style=flat)](https://npmjs.org/package/meshblu-connector-skype)
+[![Dependency status](http://img.shields.io/david/octoblu/meshblu-connector-skype.svg?style=flat)](https://david-dm.org/octoblu/meshblu-connector-skype)
+
 
 ## Installing
 
