@@ -16,13 +16,21 @@ joinMeeting = edge.func
   source: path.join __dirname, 'csharp/join-meeting.cs'
   references: references
 
+startVideo = edge.func
+  source: path.join __dirname, 'csharp/start-video.cs'
+  references: references
+
+stopVideo = edge.func
+  source: path.join __dirname, 'csharp/stop-video.cs'
+  references: references
 
 stopMeetings = edge.func
   source: path.join __dirname, 'csharp/stop-meetings.cs'
   references: references
 
-
 module.exports = {
   joinMeeting: joinMeeting
+  startVideo: startVideo
+  stopVideo: stopVideo
   stopMeetings: stopMeetings
 }

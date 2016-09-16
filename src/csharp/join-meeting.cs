@@ -54,8 +54,9 @@ public class Startup
       if(EnableVideo){
         var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
         conversation.Modalities[ModalityTypes.AudioVideo].ModalityStateChanged += HandleModalityStateChange;
-        IAsyncResult ar = avModality.BeginConnect((result) => { }, null);
-        avModality.EndConnect(ar);
+        avModality.BeginConnect((ar) => {
+          avModality.EndConnect(ar);
+        }, null);
       }
     }
   }
@@ -63,14 +64,10 @@ public class Startup
   public void HandleModalityStateChange(object sender, ModalityStateChangedEventArgs e)
   {
     if(e.NewState == ModalityState.Connected){
-      if (_VideoChannel == null)
+      var videoChannel = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]).VideoChannel;
+      if (videoChannel.CanInvoke(ChannelAction.Start))
       {
-          _VideoChannel = ((AVModality)sender).VideoChannel;
-      }
-      if (_VideoChannel.CanInvoke(ChannelAction.Start))
-      {
-          IAsyncResult ar = _VideoChannel.BeginStart((result) => {}, _VideoChannel);
-          ((VideoChannel)ar.AsyncState).EndStart(ar);
+        videoChannel.BeginStart((ar) => { videoChannel.EndStart(ar);}, null);
       }
     }
   }

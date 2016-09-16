@@ -5,6 +5,7 @@ Lync            = require './lync-manager'
 class Connector extends EventEmitter
   constructor: ->
     @conversationId = null
+    @video_on = false
 
   isOnline: (callback) =>
     callback null, running: true
@@ -16,11 +17,11 @@ class Connector extends EventEmitter
   onConfig: (device={}) =>
     { @options } = device
     debug 'on config', @options
-    @handleStateChange @options
+    @configHandler @options
 
-  handleStateChange: (options={}) =>
+  configHandler: (options={}) =>
     { url, state, enable_video } = options
-    return @stopMeetings(null) if state == "End Meeting"
+    return @stopMeetings() if state == "End Meeting"
     return @joinMeeting(url, enable_video) if state == "Join Meeting"
 
   start: (device, callback) =>
@@ -28,7 +29,7 @@ class Connector extends EventEmitter
     @onConfig device
     callback()
 
-  joinMeeting: (url=null, enable_video=true) =>
+  joinMeeting: (url=null, enable_video=false) =>
     input = {
       JoinUrl: url
       EnableVideo: enable_video
@@ -37,12 +38,20 @@ class Connector extends EventEmitter
     Lync.joinMeeting input, (error, result) =>
       throw error if error
       @conversationId = result
+      @video_on = true
 
-  stopMeetings: (id) =>
-    Lync.stopMeetings id, (error, result) =>
-      throw error if error
-      @conversationId = null
-
+  stopMeetings: () =>
+    if @video_on
+      Lync.stopVideo @conversationId, (error, result) =>
+        throw error if error
+        @video_on = false
+        Lync.stopMeetings null, (error, result) =>
+          throw error if error
+          @conversationId = null
+    else if !@video_on
+      Lync.stopMeetings @conversationId, (error, result) =>
+        throw error if error
+        @conversationId = null
 
 
 module.exports = Connector
