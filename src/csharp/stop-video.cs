@@ -27,7 +27,7 @@ public class Startup
     }
 
     var id = conversation.Properties[ConversationProperty.Id].ToString();
-    Thread.Sleep(3000);
+    Thread.Sleep(2000);
     return id;
   }
 

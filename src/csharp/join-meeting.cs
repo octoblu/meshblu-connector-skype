@@ -16,11 +16,13 @@ public class Startup
   private string conversationId = null;
   private VideoChannel _VideoChannel = null;
   private bool EnableVideo = false;
+  private bool EnableMute = false;
 
   public async Task<object> Invoke(dynamic input)
   {
     string JoinUrl = (string)input.JoinUrl;
     EnableVideo = (bool)input.EnableVideo;
+    EnableMute = (bool)input.EnableMute;
 
     Automation automation = LyncClient.GetAutomation();
     var Client = LyncClient.GetClient();
@@ -31,7 +33,6 @@ public class Startup
       IAsyncResult ar = automation.BeginStartConversation(JoinUrl, 0, (result) => { }, state);
       conversationWindow = automation.EndStartConversation(ar);
     }else if(JoinUrl == null){
-      EnableVideo = false;
       var state = new Object();
       IAsyncResult ar = automation.BeginMeetNow((result) => { }, state);
       conversationWindow = automation.EndMeetNow(ar);
@@ -68,6 +69,14 @@ public class Startup
       if (videoChannel.CanInvoke(ChannelAction.Start))
       {
         videoChannel.BeginStart((ar) => { videoChannel.EndStart(ar);}, null);
+      }
+
+      if(EnableMute){
+        var participant = conversation.Participants.Where(p => p.IsSelf).FirstOrDefault();
+        if(participant.CanBeMuted())
+        {
+          participant.BeginSetMute(true, (a) => {participant.EndSetMute(null);}, null);
+        }
       }
     }
   }

@@ -17,7 +17,7 @@ public class Startup
     if(conversationId != null)
     {
       Conversation conversation = Client.ConversationManager.Conversations.Where(c => c.Properties[ConversationProperty.Id].ToString() == conversationId).FirstOrDefault();
-
+    
       var participant = conversation.Participants.Where(p => p.IsSelf).FirstOrDefault();
       if(participant.CanBeMuted())
       {

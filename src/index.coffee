@@ -36,6 +36,7 @@ class Connector extends EventEmitter
     input = {
       JoinUrl: url
       EnableVideo: enable_video
+      EnableMute: mute_toggle
     }
 
     if !@in_meeting
@@ -44,10 +45,9 @@ class Connector extends EventEmitter
         @conversationId = result
         @video_on = true
         @in_meeting = true
-        @handleMute mute_toggle
 
   stopMeetings: () =>
-    if @video_on
+    if @video_on 
       Lync.stopVideo @conversationId, (error, result) =>
         throw error if error
         @video_on = false
