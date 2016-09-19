@@ -2,4 +2,5 @@ angular: [
   { key: "options.url" }
   { key: "options.state" }
   { key: "options.enable_video" }
+  { key: "options.mute_toggle" }
 ]

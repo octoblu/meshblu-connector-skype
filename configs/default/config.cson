@@ -20,8 +20,13 @@ properties:
         title: "Enable Video"
         type: "boolean"
         default: true
+      mute_toggle:
+        title: "Mute Self"
+        type: "boolean"
+        default: false
     required: [
       "url"
       "state"
       "enable_video"
+      "mute_toggle"
     ]

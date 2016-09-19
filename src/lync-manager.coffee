@@ -28,9 +28,19 @@ stopMeetings = edge.func
   source: path.join __dirname, 'csharp/stop-meetings.cs'
   references: references
 
+mute = edge.func
+  source: path.join __dirname, 'csharp/mute-self.cs'
+  references: references
+
+unmute = edge.func
+  source: path.join __dirname, 'csharp/unmute-self.cs'
+  references: references
+
 module.exports = {
   joinMeeting: joinMeeting
   startVideo: startVideo
   stopVideo: stopVideo
   stopMeetings: stopMeetings
+  mute: mute
+  unmute: unmute
 }

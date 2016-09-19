@@ -6,6 +6,7 @@ class Connector extends EventEmitter
   constructor: ->
     @conversationId = null
     @video_on = false
+    @in_meeting = false
 
   isOnline: (callback) =>
     callback null, running: true
@@ -20,25 +21,30 @@ class Connector extends EventEmitter
     @configHandler @options
 
   configHandler: (options={}) =>
-    { url, state, enable_video } = options
+    { url, state, enable_video, mute_toggle } = options
     return @stopMeetings() if state == "End Meeting"
-    return @joinMeeting(url, enable_video) if state == "Join Meeting"
+    return @joinMeeting(url, enable_video, mute_toggle) if state == "Join Meeting"
 
   start: (device, callback) =>
     debug 'started'
     @onConfig device
     callback()
 
-  joinMeeting: (url=null, enable_video=false) =>
+  joinMeeting: (url=null, enable_video=false, mute_toggle) =>
+    return @handleMute mute_toggle if @in_meeting
+
     input = {
       JoinUrl: url
       EnableVideo: enable_video
     }
 
-    Lync.joinMeeting input, (error, result) =>
-      throw error if error
-      @conversationId = result
-      @video_on = true
+    if !@in_meeting
+      Lync.joinMeeting input, (error, result) =>
+        throw error if error
+        @conversationId = result
+        @video_on = true
+        @in_meeting = true
+        @handleMute mute_toggle
 
   stopMeetings: () =>
     if @video_on
@@ -48,10 +54,20 @@ class Connector extends EventEmitter
         Lync.stopMeetings null, (error, result) =>
           throw error if error
           @conversationId = null
+          @in_meeting = false
     else if !@video_on
       Lync.stopMeetings @conversationId, (error, result) =>
         throw error if error
         @conversationId = null
+        @in_meeting = false
+
+  handleMute: (toggle) =>
+    if toggle
+      Lync.mute @conversationId, (error, result) =>
+        throw error if error
+    else
+      Lync.unmute @conversationId, (error, result) =>
+        throw error if error
 
 
 module.exports = Connector
