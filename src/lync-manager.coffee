@@ -36,6 +36,10 @@ unmute = edge.func
   source: path.join __dirname, 'csharp/unmute-self.cs'
   references: references
 
+getConferenceUri = edge.func
+  source: path.join __dirname, 'csharp/get-conferencing-uri.cs'
+  references: references
+
 module.exports = {
   joinMeeting: joinMeeting
   startVideo: startVideo
@@ -43,4 +47,5 @@ module.exports = {
   stopMeetings: stopMeetings
   mute: mute
   unmute: unmute
+  getConferenceUri: getConferenceUri
 }

@@ -7,6 +7,7 @@ class Connector extends EventEmitter
     @conversationId = null
     @video_on = false
     @in_meeting = false
+    @conferencing_uri = null
 
   isOnline: (callback) =>
     callback null, running: true
@@ -45,9 +46,12 @@ class Connector extends EventEmitter
         @conversationId = result
         @video_on = true
         @in_meeting = true
+        Lync.getConferenceUri @conversationId, (error, result) =>
+          throw error if error
+          @conferencing_uri = result
 
   stopMeetings: () =>
-    if @video_on 
+    if @video_on
       Lync.stopVideo @conversationId, (error, result) =>
         throw error if error
         @video_on = false
