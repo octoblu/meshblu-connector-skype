@@ -22,22 +22,24 @@ class Connector extends EventEmitter
     @configHandler @options
 
   configHandler: (options={}) =>
-    { url, state, enable_video, mute_toggle } = options
+    { url, state, enable_video, enable_audio } = options
+    enable_audio = !enable_audio
+
     return @stopMeetings() if state == "End Meeting"
-    return @joinMeeting(url, enable_video, mute_toggle) if state == "Join Meeting"
+    return @joinMeeting(url, enable_video, enable_audio) if state == "Join Meeting"
 
   start: (device, callback) =>
     debug 'started'
     @onConfig device
     callback()
 
-  joinMeeting: (url=null, enable_video=false, mute_toggle) =>
-    return @handleMute mute_toggle if @in_meeting
+  joinMeeting: (url=null, enable_video=false, enable_audio) =>
+    return @handleMute enable_audio if @in_meeting
 
     input = {
       JoinUrl: url
       EnableVideo: enable_video
-      EnableMute: mute_toggle
+      EnableMute: enable_audio
     }
 
     if !@in_meeting
