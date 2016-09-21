@@ -8,6 +8,7 @@ class Connector extends EventEmitter
     @video_on = false
     @in_meeting = false
     @conferencing_uri = null
+    @joining = false
 
   isOnline: (callback) =>
     callback null, running: true
@@ -42,7 +43,8 @@ class Connector extends EventEmitter
       EnableMute: enable_audio
     }
 
-    if !@in_meeting
+    if !@in_meeting && !@joining
+      @joining = true
       Lync.joinMeeting input, (error, result) =>
         throw error if error
         @conversationId = result
@@ -51,6 +53,7 @@ class Connector extends EventEmitter
         Lync.getConferenceUri @conversationId, (error, result) =>
           throw error if error
           @conferencing_uri = result
+          @joining = false
 
   stopMeetings: () =>
     if @video_on
