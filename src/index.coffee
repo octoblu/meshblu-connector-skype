@@ -18,12 +18,12 @@ class Connector extends EventEmitter
     callback()
 
   onConfig: (device={}) =>
-    { @options } = device
-    debug 'on config', @options
-    @configHandler @options
+    { @desiredState } = device
+    debug 'on config', @desiredState
+    @configHandler @desiredState
 
-  configHandler: (options={}) =>
-    { url, state, enable_video, enable_audio } = options
+  configHandler: (desiredState={}) =>
+    { url, state, enable_video, enable_audio } = desiredState
     enable_audio = !enable_audio
 
     return @stopMeetings() if state == "End Meeting"

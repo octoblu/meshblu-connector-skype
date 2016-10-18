@@ -1,8 +1,8 @@
 title: "Default Configuration"
 type: "object"
 properties:
-  options:
-    title: "Options"
+  desiredState:
+    title: "Desired State"
     type: "object"
     properties:
       url:
