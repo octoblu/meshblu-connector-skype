@@ -53,7 +53,14 @@ class Connector extends EventEmitter
         @video_on = true
         @in_meeting = true
         @joining = false
-        @emit 'update', { conferencing_uri: url }
+
+        state = {
+          currentState:
+            conferencing_uri: url
+            in_meeting: @in_meeting
+            video_on: @video_on
+          }
+        @emit 'update', state
 
   meetNow: (enable_video=false, enable_audio) =>
     return @handleMute enable_audio if @in_meeting
@@ -75,7 +82,13 @@ class Connector extends EventEmitter
           throw error if error
           @conferencing_uri = result
           @joining = false
-          @emit 'update', { conferencing_uri: result }
+          state = {
+            currentState:
+              conferencing_uri: result
+              in_meeting: @in_meeting
+              video_on: @video_on
+            }
+          @emit 'update', state
 
   stopMeetings: () =>
     if @video_on
@@ -86,11 +99,25 @@ class Connector extends EventEmitter
           throw error if error
           @conversationId = null
           @in_meeting = false
+          state = {
+            currentState:
+              conferencing_uri: null
+              in_meeting: @in_meeting
+              video_on: @video_on
+            }
+          @emit 'update', state
     else if !@video_on
       Lync.stopMeetings @conversationId, (error, result) =>
         throw error if error
         @conversationId = null
         @in_meeting = false
+        state = {
+          currentState:
+            conferencing_uri: null
+            in_meeting: @in_meeting
+            video_on: @video_on
+          }
+        @emit 'update', state
 
   handleMute: (toggle) =>
     if toggle
