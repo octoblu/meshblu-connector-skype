@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Lync.Model;
 using Microsoft.Lync.Model.Conversation;
+using Microsoft.Lync.Model.Conversation.Sharing;
 using Microsoft.Lync.Model.Conversation.AudioVideo;
 using Microsoft.Lync.Model.Extensibility;
 
@@ -71,12 +72,19 @@ public class Startup
         videoChannel.BeginStart((ar) => { videoChannel.EndStart(ar);}, null);
       }
 
+      // var applicationModality = ((ApplicationSharingModality)conversation.Modalities[ModalityTypes.ApplicationSharing]);
+      // applicationModality.BeginDisconnect(ModalityDisconnectReason.None, (ar) => { applicationModality.EndDisconnect(ar); }, null);
+
       if(EnableMute){
         var participant = conversation.Participants.Where(p => p.IsSelf).FirstOrDefault();
         if(participant.CanBeMuted())
         {
           participant.BeginSetMute(true, (a) => {participant.EndSetMute(null);}, null);
         }
+        if (!(bool)participant.Properties[ParticipantProperty.IsPresenter])
+       {
+         participant.BeginSetProperty(ParticipantProperty.IsPresenter, true, (ar) => { participant.EndSetProperty(ar); }, null);
+       }
       }
     }
   }

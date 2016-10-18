@@ -17,7 +17,7 @@ properties:
           'End Meeting'
         ]
         default: "End Meeting"
-        description: "Meet Now creates a new meeting and updates the device with conferencing_uri"
+        description: "Meet Now creates a new meeting and updates conferencing_uri on the device state"
       enable_video:
         title: "Enable Video"
         type: "boolean"

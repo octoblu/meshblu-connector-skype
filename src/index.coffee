@@ -27,7 +27,7 @@ class Connector extends EventEmitter
     enable_audio = !enable_audio
 
     return @stopMeetings() if state == "End Meeting"
-    return @meetNow( enable_video, enable_audio ) if state == "Meet Now" && !url?
+    return @meetNow( enable_video, enable_audio ) if state == "Meet Now"
     return @joinMeeting(url, enable_video, enable_audio) if state == "Join Meeting"
 
   start: (device, callback) =>
@@ -59,7 +59,7 @@ class Connector extends EventEmitter
     return @handleMute enable_audio if @in_meeting
 
     input = {
-      JoinUrl: ""
+      JoinUrl: null
       EnableVideo: enable_video
       EnableMute: enable_audio
     }
