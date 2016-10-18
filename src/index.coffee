@@ -111,13 +111,6 @@ class Connector extends EventEmitter
         throw error if error
         @conversationId = null
         @in_meeting = false
-        state = {
-          currentState:
-            conferencing_uri: null
-            in_meeting: @in_meeting
-            video_on: @video_on
-          }
-        @emit 'update', state
 
   handleMute: (toggle) =>
     if toggle
