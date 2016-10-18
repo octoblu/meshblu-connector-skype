@@ -13,9 +13,11 @@ properties:
         type: "string"
         "enum": [
           'Join Meeting'
+          'Meet Now'
           'End Meeting'
         ]
         default: "End Meeting"
+        description: "Meet Now creates a new meeting and updates the device with conferencing_uri"
       enable_video:
         title: "Enable Video"
         type: "boolean"

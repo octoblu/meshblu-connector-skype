@@ -27,6 +27,7 @@ class Connector extends EventEmitter
     enable_audio = !enable_audio
 
     return @stopMeetings() if state == "End Meeting"
+    return @meetNow( enable_video, enable_audio ) if state == "Meet Now" && !url?
     return @joinMeeting(url, enable_video, enable_audio) if state == "Join Meeting"
 
   start: (device, callback) =>
@@ -34,7 +35,8 @@ class Connector extends EventEmitter
     @onConfig device
     callback()
 
-  joinMeeting: (url=null, enable_video=false, enable_audio) =>
+  joinMeeting: (url, enable_video=false, enable_audio) =>
+    return if !url?
     return @handleMute enable_audio if @in_meeting
 
     input = {
@@ -50,10 +52,30 @@ class Connector extends EventEmitter
         @conversationId = result
         @video_on = true
         @in_meeting = true
+        @joining = false
+        @emit 'update', { conferencing_uri: url }
+
+  meetNow: (enable_video=false, enable_audio) =>
+    return @handleMute enable_audio if @in_meeting
+
+    input = {
+      JoinUrl: ""
+      EnableVideo: enable_video
+      EnableMute: enable_audio
+    }
+
+    if !@in_meeting && !@joining
+      @joining = true
+      Lync.joinMeeting input, (error, result) =>
+        throw error if error
+        @conversationId = result
+        @video_on = true
+        @in_meeting = true
         Lync.getConferenceUri @conversationId, (error, result) =>
           throw error if error
           @conferencing_uri = result
           @joining = false
+          @emit 'update', { conferencing_uri: result }
 
   stopMeetings: () =>
     if @video_on
