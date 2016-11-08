@@ -24,7 +24,8 @@ public class Startup
     IAsyncResult ar = automation.BeginStartConversation(JoinUrl, 0, (result) => { }, state);
     conversationWindow = automation.EndStartConversation(ar);
 
-    conversationId = conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
+    var conversationId = conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
+    conversationWindow.Conversation.StateChanged += HandleStateChange;
     return conversationId;
   }
 
