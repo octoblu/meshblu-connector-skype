@@ -42,9 +42,9 @@ class Connector extends EventEmitter
 
     return @Lync.stopMeetings callback if _.isEmpty meetingUrl
 
-    @Lync.getConferenceUri (error, currentMeetingUrl) =>
+    @Lync.getState (error, state) =>
       return callback error if error?
-      return callback() if currentMeetingUrl == meetingUrl
+      return callback() if meetingUrl == _.get(state, 'meetingUrl')
       @Lync.joinMeeting meetingUrl, callback
 
 module.exports = Connector
