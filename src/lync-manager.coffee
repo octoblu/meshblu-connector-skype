@@ -39,6 +39,10 @@ getConferenceUri = edge.func
   source: path.join __dirname, 'csharp/get-conferencing-uri.cs'
   references: references
 
+getState = edge.func
+  source: path.join __dirname, 'csharp/get-state.cs'
+  references: references
+
 module.exports = {
   joinMeeting: joinMeeting
   startVideo: startVideo
@@ -47,4 +51,5 @@ module.exports = {
   mute: mute
   unmute: unmute
   getConferenceUri: getConferenceUri
+  getState: getState
 }
