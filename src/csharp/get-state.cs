@@ -24,6 +24,6 @@ public class Startup
       meetingUrl     = conversation.Properties[ConversationProperty.ConferencingUri].ToString(),
       audioEnabled   = participant.IsMuted,
       videoEnabled   = videoChannel.IsContributing,
-    }
+    };
   }
 }
