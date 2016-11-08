@@ -42,7 +42,8 @@ class Connector extends EventEmitter
 
     return @Lync.stopMeetings callback if _.isEmpty meetingUrl
 
-    @Lync.getState null, (error, state) =>
+    @Lync.getState 'hi', (error, state) =>
+      console.log 'getState', error, state
       return callback error if error?
       return callback() if meetingUrl == _.get(state, 'meetingUrl')
       @Lync.joinMeeting meetingUrl, callback
