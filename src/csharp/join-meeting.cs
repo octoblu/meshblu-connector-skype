@@ -12,6 +12,8 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
+  private ConversationWindow conversationWindow = null;
+
   public async Task<object> Invoke(string JoinUrl)
   {
     Automation automation = LyncClient.GetAutomation();
@@ -22,7 +24,6 @@ public class Startup
     IAsyncResult ar = automation.BeginStartConversation(JoinUrl, 0, (result) => { }, state);
     conversationWindow = automation.EndStartConversation(ar);
 
-    conversation = conversationWindow.Conversation;
     conversationId = conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
     return conversationId;
   }
