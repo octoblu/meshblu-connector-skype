@@ -10,7 +10,7 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  public async Task<object> Invoke(string conversationId)
+  public async Task<object> Invoke()
   {
     var Client = LyncClient.GetClient();
     Thread.Sleep(3000);
