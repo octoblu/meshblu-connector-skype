@@ -19,7 +19,7 @@ public class Startup
       Conversation conversation = Client.ConversationManager.Conversations.Where(c => c.Properties[ConversationProperty.Id].ToString() == conversationId).FirstOrDefault();
 
       var participant = conversation.Participants.Where(p => p.IsSelf).FirstOrDefault();
-      if(participant.CanInvoke(ParticipantAction.SetMute))
+      if(participant.CanBeMuted())
       {
         participant.BeginSetMute(false, (a) => {a.AsyncWaitHandle.WaitOne(); participant.EndSetMute(null);}, null);
       }
