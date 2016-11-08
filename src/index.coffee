@@ -27,7 +27,7 @@ class Connector extends EventEmitter
           @emit 'update', {state, desiredState: {}}
 
   _computeState: (callback) =>
-    @Lync.getState (error, state) =>
+    @Lync.getState null, (error, state) =>
       return callback error if error?
       return callback null, state
 
@@ -42,7 +42,7 @@ class Connector extends EventEmitter
 
     return @Lync.stopMeetings callback if _.isEmpty meetingUrl
 
-    @Lync.getState (error, state) =>
+    @Lync.getState null, (error, state) =>
       return callback error if error?
       return callback() if meetingUrl == _.get(state, 'meetingUrl')
       @Lync.joinMeeting meetingUrl, callback
