@@ -1,124 +1,49 @@
+async = require 'async'
 {EventEmitter}  = require 'events'
-debug           = require('debug')('meshblu-connector-skype:index')
-Lync            = require './lync-manager'
+_     = require 'lodash'
+# debug           = require('debug')('meshblu-connector-skype:index')
 
 class Connector extends EventEmitter
-  constructor: ->
-    @conversationId = null
-    @video_on = false
-    @in_meeting = false
-    @conferencing_uri = null
-    @joining = false
+  constructor: ({@Lync}) ->
+    @Lync ?= require './lync-manager'
 
-  isOnline: (callback) =>
-    callback null, running: true
+  start: (arg, callback) =>
+    return callback()
 
   close: (callback) =>
-    debug 'on close'
-    callback()
+    return callback()
 
-  onConfig: (device={}) =>
-    { @desiredState } = device
-    debug 'on config', @desiredState
-    @configHandler @desiredState
+  onConfig: (device, callback) =>
+    desiredState = _.get device, 'desiredState', {}
 
-  configHandler: (desiredState={}) =>
-    { url, state, enable_video, enable_audio } = desiredState
-    enable_audio = !enable_audio
+    @_handleMeetingUrl desiredState, (error) =>
+      return callback error if error?
 
-    return @stopMeetings() if state == "End Meeting"
-    return @meetNow( enable_video, enable_audio ) if state == "Meet Now"
-    return @joinMeeting(url, enable_video, enable_audio) if state == "Join Meeting"
+      @_handleEnableAudio desiredState, (error) =>
+        return callback error if error?
 
-  start: (device, callback) =>
-    debug 'started'
-    @onConfig device
-    callback()
+        @_computeState (error, state) =>
+          return callback error if error?
+          @emit 'update', {state, desiredState: {}}
 
-  joinMeeting: (url, enable_video=false, enable_audio) =>
-    return if !url?
-    return @handleMute enable_audio if @in_meeting
+  _computeState: (callback) =>
+    @Lync.getConferenceUri (error, meetingUrl) =>
+      return callback error if error?
+      return callback null, {meetingUrl}
 
-    input = {
-      JoinUrl: url
-      EnableVideo: enable_video
-      EnableMute: enable_audio
-    }
+  _handleEnableAudio: (desiredState, callback) =>
+    return callback() unless _.has desiredState, 'enableAudio'
+    @Lync.unmute callback
 
-    if !@in_meeting && !@joining
-      @joining = true
-      Lync.joinMeeting input, (error, result) =>
-        throw error if error
-        @conversationId = result
-        @video_on = true
-        @in_meeting = true
-        @joining = false
+  _handleMeetingUrl: (desiredState, callback) =>
+    return callback() unless _.has desiredState, 'meetingUrl'
+    {meetingUrl} = desiredState
 
-        state = {
-          currentState:
-            conferencing_uri: url
-            in_meeting: @in_meeting
-            video_on: @video_on
-          }
-        @emit 'update', state
+    return @Lync.stopMeetings callback if _.isEmpty meetingUrl
 
-  meetNow: (enable_video=false, enable_audio) =>
-    return @handleMute enable_audio if @in_meeting
-
-    input = {
-      JoinUrl: null
-      EnableVideo: enable_video
-      EnableMute: enable_audio
-    }
-
-    if !@in_meeting && !@joining
-      @joining = true
-      Lync.joinMeeting input, (error, result) =>
-        throw error if error
-        @conversationId = result
-        @video_on = true
-        @in_meeting = true
-        Lync.getConferenceUri @conversationId, (error, result) =>
-          throw error if error
-          @conferencing_uri = result
-          @joining = false
-          state = {
-            currentState:
-              conferencing_uri: result
-              in_meeting: @in_meeting
-              video_on: @video_on
-            }
-          @emit 'update', state
-
-  stopMeetings: () =>
-    if @video_on
-      Lync.stopVideo @conversationId, (error, result) =>
-        throw error if error
-        @video_on = false
-        Lync.stopMeetings null, (error, result) =>
-          throw error if error
-          @conversationId = null
-          @in_meeting = false
-          state = {
-            currentState:
-              conferencing_uri: null
-              in_meeting: @in_meeting
-              video_on: @video_on
-            }
-          @emit 'update', state
-    else if !@video_on
-      Lync.stopMeetings @conversationId, (error, result) =>
-        throw error if error
-        @conversationId = null
-        @in_meeting = false
-
-  handleMute: (toggle) =>
-    if toggle
-      Lync.mute @conversationId, (error, result) =>
-        throw error if error
-    else
-      Lync.unmute @conversationId, (error, result) =>
-        throw error if error
-
+    @Lync.getConferenceUri (error, currentMeetingUrl) =>
+      return callback error if error?
+      return callback() if currentMeetingUrl == meetingUrl
+      @Lync.joinMeeting meetingUrl, callback
 
 module.exports = Connector

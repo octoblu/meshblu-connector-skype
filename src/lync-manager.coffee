@@ -11,7 +11,6 @@ references = [
   'Microsoft.Office.Uc.dll'
 ]
 
-
 joinMeeting = edge.func
   source: path.join __dirname, 'csharp/join-meeting.cs'
   references: references
