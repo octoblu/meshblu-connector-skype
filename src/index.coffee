@@ -19,7 +19,7 @@ class Connector extends EventEmitter
     @_handleMeetingUrl desiredState, (error) =>
       return callback error if error?
 
-      @_handleEnableAudio desiredState, (error) =>
+      @_handleAudioEnabled desiredState, (error) =>
         return callback error if error?
 
         @_computeState (error, state) =>
@@ -27,13 +27,14 @@ class Connector extends EventEmitter
           @emit 'update', {state, desiredState: {}}
 
   _computeState: (callback) =>
-    @Lync.getConferenceUri (error, meetingUrl) =>
+    @Lync.getState (error, state) =>
       return callback error if error?
-      return callback null, {meetingUrl}
+      return callback null, state
 
-  _handleEnableAudio: (desiredState, callback) =>
-    return callback() unless _.has desiredState, 'enableAudio'
-    @Lync.unmute callback
+  _handleAudioEnabled: (desiredState, callback) =>
+    return callback() unless _.has desiredState, 'audioEnabled'
+    return @Lync.unmute callback if desiredState.audioEnabled
+    return @Lync.mute callback
 
   _handleMeetingUrl: (desiredState, callback) =>
     return callback() unless _.has desiredState, 'meetingUrl'
