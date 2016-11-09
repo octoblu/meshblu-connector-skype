@@ -17,7 +17,6 @@ class Connector extends EventEmitter
 
   onConfig: (device, callback=->) =>
     desiredState = _.get device, 'desiredState', {}
-    console.log 'onConfig', JSON.stringify desiredState
     return callback() if _.isEmpty desiredState
 
     @_handleDesiredState desiredState, (error) =>
@@ -30,13 +29,12 @@ class Connector extends EventEmitter
   _updateCurrentState: (callback) =>
     @_computeState (error, state) =>
       return callback error if error?
-      console.log 'state', JSON.stringify {state, desiredState: {}}
       @emit 'update', {state, desiredState: {}}
       callback()
 
   _handleDesiredState: (desiredState, callback) =>
     async.series [
-      async.apply(@_handleMeetingUrl,   desiredState)
+      async.apply(@_handleMeeting,   desiredState)
       async.apply(@_handleAudioEnabled, desiredState)
       async.apply(@_handleVideoEnabled, desiredState)
     ], callback
@@ -57,21 +55,17 @@ class Connector extends EventEmitter
       return @Lync.unmute state.conversationId, callback if desiredState.audioEnabled
       return @Lync.mute state.conversationId, callback
 
-  _handleMeetingUrl: (desiredState, callback) =>
-    debug '_handleMeetingUrl'
-    return callback() unless _.has desiredState, 'meetingUrl'
-    {meetingUrl} = desiredState
+  _handleMeeting: (desiredState, callback) =>
+    debug '_handleMeeting'
+    return callback() unless _.has desiredState, 'meeting'
+    {meeting} = desiredState
 
     @Lync.stopMeetings null, (error) =>
-      debug '@Lync.stopMeetings', error
       return callback error if error?
-      return callback() if _.isEmpty meetingUrl
+      return callback() if _.isEmpty meeting
+      return @Lync.createMeeting null, callback if _.isEmpty meeting.url
 
-      @Lync.getState null, (error, state) =>
-        debug '@Lync.getState', error, JSON.stringify(state)
-        return callback error if error?
-        return callback() if meetingUrl == _.get(state, 'meetingUrl')
-        @Lync.joinMeeting meetingUrl, callback
+      @Lync.joinMeeting meeting.url, callback
 
   _handleVideoEnabled: (desiredState, callback) =>
     debug '_handleVideoEnabled'
@@ -80,7 +74,6 @@ class Connector extends EventEmitter
     return @Lync.stopVideo null, callback unless desiredState.videoEnabled
     return @Lync.startVideo null, (error, conversations) =>
       return callback error if error?
-      console.log 'conversations', JSON.stringify(conversations, null, 2)
       return callback()
 
 

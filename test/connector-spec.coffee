@@ -7,6 +7,7 @@ Connector = require '../'
 describe 'Connector', ->
   beforeEach (done) ->
     @Lync =
+      createMeeting:    sinon.stub()
       getConferenceUri: sinon.stub().yields()
       getState:         sinon.stub().yields()
       joinMeeting:      sinon.stub()
@@ -35,20 +36,22 @@ describe 'Connector', ->
       @sut.on 'update', (@update) => done()
       @Lync.unmute.yields()
       @Lync.getState.yields null, {
-        meetingUrl:     'https://meet.go.co/alskdjf'
+        meeting:
+          url: 'https://meet.go.co/alskdjf'
         conversationId: '123'
         audioEnabled: true
       }
       @sut.onConfig desiredState: {audioEnabled: true}
 
     it 'should call Lync.unmute', ->
-      expect(@Lync.unmute).to.have.been.calledWith '123'
+      expect(@Lync.unmute).to.have.been.called
 
     it 'should emit an update with an empty desiredState, and the new actual state', ->
       expect(@update).to.deep.equal {
         desiredState: {}
         state:
-          meetingUrl:     'https://meet.go.co/alskdjf'
+          meeting:
+            url: 'https://meet.go.co/alskdjf'
           conversationId: '123'
           audioEnabled:   true
       }
@@ -58,7 +61,8 @@ describe 'Connector', ->
       @sut.on 'update', (@update) => done()
       @Lync.mute.yields()
       @Lync.getState.yields null, {
-        meetingUrl: 'https://meet.go.co/alskdjf'
+        meeting:
+          url: 'https://meet.go.co/alskdjf'
         conversationId: '321'
         audioEnabled: false
       }
@@ -71,7 +75,8 @@ describe 'Connector', ->
       expect(@update).to.deep.equal {
         desiredState: {}
         state:
-          meetingUrl: 'https://meet.go.co/alskdjf'
+          meeting:
+            url: 'https://meet.go.co/alskdjf'
           conversationId: '321'
           audioEnabled: false
       }
@@ -81,7 +86,8 @@ describe 'Connector', ->
       @sut.on 'update', (@update) => done()
       @Lync.startVideo.yields()
       @Lync.getState.yields null, {
-        meetingUrl:     'https://meet.go.co/alskdjf'
+        meeting:
+          url: 'https://meet.go.co/alskdjf'
         conversationId: '123'
         audioEnabled: true
         videoEnabled: true
@@ -89,13 +95,14 @@ describe 'Connector', ->
       @sut.onConfig desiredState: {videoEnabled: true}
 
     it 'should call Lync.startVideo', ->
-      expect(@Lync.startVideo).to.have.been.calledWith '123'
+      expect(@Lync.startVideo).to.have.been.called
 
     it 'should emit an update with an empty desiredState, and the new actual state', ->
       expect(@update).to.deep.equal {
         desiredState: {}
         state:
-          meetingUrl:     'https://meet.go.co/alskdjf'
+          meeting:
+            url: 'https://meet.go.co/alskdjf'
           conversationId: '123'
           audioEnabled:   true
           videoEnabled:   true
@@ -106,21 +113,23 @@ describe 'Connector', ->
       @sut.on 'update', (@update) => done()
       @Lync.stopVideo.yields()
       @Lync.getState.yields null, {
-        meetingUrl:     'https://meet.go.co/alskdjf'
+        meeting:
+          url: 'https://meet.go.co/alskdjf'
         conversationId: '123'
         audioEnabled: true
         videoEnabled: false
       }
       @sut.onConfig desiredState: {videoEnabled: false}
 
-    it 'should call Lync.startVideo', ->
-      expect(@Lync.stopVideo).to.have.been.calledWith '123'
+    it 'should call Lync.stopVideo', ->
+      expect(@Lync.stopVideo).to.have.been.called
 
     it 'should emit an update with an empty desiredState, and the new actual state', ->
       expect(@update).to.deep.equal {
         desiredState: {}
         state:
-          meetingUrl:     'https://meet.go.co/alskdjf'
+          meeting:
+            url: 'https://meet.go.co/alskdjf'
           conversationId: '123'
           audioEnabled:   true
           videoEnabled:   false
@@ -136,14 +145,17 @@ describe 'Connector', ->
       describe 'And a config event with a url comes in', ->
         beforeEach (done) ->
           @sut.on 'update', (@update) => done()
+          @Lync.stopMeetings.yields()
           @Lync.joinMeeting.yields()
           @Lync.getState.yields null, {
-            meetingUrl:   'https://meet.go.co/alskdjf'
+            meeting:
+              url: 'https://meet.go.co/alskdjf'
             audioEnabled: false
           }
           @sut.onConfig {
             desiredState:
-              meetingUrl: 'https://meet.citrix.com/roy.vandewater/OYKTG6CI'
+              meeting:
+                url: 'https://meet.citrix.com/roy.vandewater/OYKTG6CI'
           }
 
         it 'should join the meeting', ->
@@ -153,7 +165,36 @@ describe 'Connector', ->
           expect(@update).to.deep.equal {
             desiredState: {}
             state:
-              meetingUrl:  'https://meet.go.co/alskdjf'
+              meeting:
+                url: 'https://meet.go.co/alskdjf'
+              audioEnabled: false
+          }
+
+      describe 'And a config event with a null url comes in', ->
+        beforeEach (done) ->
+          @sut.on 'update', (@update) => done()
+          @Lync.stopMeetings.yields()
+          @Lync.createMeeting.yields()
+          @Lync.getState.yields null, {
+            meeting:
+              url: 'https://meet.go.co/alskdjf'
+            audioEnabled: false
+          }
+          @sut.onConfig {
+            desiredState:
+              meeting:
+                url: null
+          }
+
+        it 'should create a meeting', ->
+          expect(@Lync.createMeeting).to.have.been.called
+
+        it 'should emit an update with an empty desiredState, and the new actual state', ->
+          expect(@update).to.deep.equal {
+            desiredState: {}
+            state:
+              meeting:
+                url: 'https://meet.go.co/alskdjf'
               audioEnabled: false
           }
 
@@ -164,13 +205,16 @@ describe 'Connector', ->
       describe 'And a config event with a different meetingUrl comes in', ->
         beforeEach (done) ->
           @sut.on 'update', (@update) => done()
+          @Lync.stopMeetings.yields()
           @Lync.joinMeeting.yields()
           @Lync.getState.yields null, {
-            meetingUrl: 'https://meeting.im.in.now'
+            meeting:
+              url: 'https://meeting.im.in.now'
           }
           @sut.onConfig {
             desiredState:
-              meetingUrl: 'https://meet.citrix.com/roy.vandewater/OYKTG6CI'
+              meeting:
+                url: 'https://meet.citrix.com/roy.vandewater/OYKTG6CI'
           }
 
         it 'should join the meeting', ->
@@ -180,31 +224,8 @@ describe 'Connector', ->
           expect(@update).to.deep.equal {
             desiredState: {}
             state:
-              meetingUrl: 'https://meeting.im.in.now'
-          }
-
-      describe 'And a config event with the same meetingUrl comes in', ->
-        beforeEach (done) ->
-          @sut.on 'update', (@update) => done()
-          @Lync.joinMeeting.yields()
-          @Lync.getState.yields null, {
-            meetingUrl: 'https://meeting.i.was.already.in'
-            audioEnabled: false
-          }
-          @sut.onConfig {
-            desiredState:
-              meetingUrl: 'https://meeting.i.was.already.in'
-          }
-
-        it 'should not try to join the meeting', ->
-          expect(@Lync.joinMeeting).not.to.have.been.called
-
-        it 'should emit an update with an empty desiredState', ->
-          expect(@update).to.deep.equal {
-            desiredState: {}
-            state:
-              meetingUrl: 'https://meeting.i.was.already.in'
-              audioEnabled: false
+              meeting:
+                url: 'https://meeting.im.in.now'
           }
 
   describe 'Leave a Meeting', ->
@@ -212,12 +233,13 @@ describe 'Connector', ->
       @sut.on 'update', (@update) => done()
       @Lync.stopMeetings.yields()
       @Lync.getState.yields null, {
-        meetingUrl: 'https://meeting.i.was.already.in'
+        meeting:
+          url: 'https://meeting.i.was.already.in'
         audioEnabled: false
       }
       @sut.onConfig {
         desiredState:
-          meetingUrl: null
+          meeting: null
       }
 
     it 'should stop all meetings', ->
@@ -227,7 +249,8 @@ describe 'Connector', ->
       expect(@update).to.deep.equal {
         desiredState: {}
         state:
-          meetingUrl: 'https://meeting.i.was.already.in'
+          meeting:
+            url: 'https://meeting.i.was.already.in'
           audioEnabled: false
       }
 
