@@ -19,6 +19,7 @@ public class Startup
   {
     var conversation = GetConversation();
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+    var tcs = new TaskCompletionSource<bool>();
 
     EventHandler<ModalityStateChangedEventArgs> handler = (sender, e) => {
       if (e.NewState != ModalityState.Connected) return;
@@ -36,7 +37,6 @@ public class Startup
     if (conversation == null) throw new System.InvalidOperationException("Cannot start video on non-extant conversation");
 
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
-    var tcs = new TaskCompletionSource<bool>();
 
     if (avModality.State != ModalityState.Connected) {
       await WaitToConnect()
