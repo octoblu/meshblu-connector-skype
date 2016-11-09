@@ -8,7 +8,7 @@ describe 'Connector', ->
   beforeEach (done) ->
     @Lync =
       getConferenceUri: sinon.stub().yields()
-      getState:         sinon.stub()
+      getState:         sinon.stub().yields()
       joinMeeting:      sinon.stub()
       startVideo:       sinon.stub()
       stopVideo:        sinon.stub()
