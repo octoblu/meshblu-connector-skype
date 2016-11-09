@@ -20,7 +20,7 @@ public class Startup
     var conversation = GetConversation();
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
 
-    var handler = (sender, e) => {
+    EventHandler<ModalityStateChangedEventArgs> handler = (sender, e) => {
       if (e.NewState != ModalityState.Connected) return;
       avModality.ModalityStateChanged -= handler;
       tcs.TrySetResult(true);
