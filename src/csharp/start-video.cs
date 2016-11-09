@@ -21,7 +21,8 @@ public class Startup
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
     var tcs = new TaskCompletionSource<bool>();
 
-    EventHandler<ModalityStateChangedEventArgs> handler = (sender, e) => {
+    EventHandler<ModalityStateChangedEventArgs> handler = null;
+    handler = (sender, e) => {
       if (e.NewState != ModalityState.Connected) return;
       avModality.ModalityStateChanged -= handler;
       tcs.TrySetResult(true);
