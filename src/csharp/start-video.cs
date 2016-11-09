@@ -15,6 +15,11 @@ public class Startup
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault(c => c.Properties[ConversationProperty.Id].ToString() == conversationId);
   }
 
+  public Conversation GetAllConversations()
+  {
+    return LyncClient.GetClient().ConversationManager.Conversations
+  }
+
   public async Task<VideoChannel> GetVideoChannel(string conversationId)
   {
     var conversation = GetConversation(conversationId);
@@ -26,8 +31,9 @@ public class Startup
 
   public async Task<object> Invoke(string conversationId)
   {
-    var videoChannel = await GetVideoChannel(conversationId);
-    await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
-    return conversationId;
+    return GetAllConversations()
+    // var videoChannel = await GetVideoChannel(conversationId);
+    // await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
+    // return conversationId;
   }
 }

@@ -74,8 +74,11 @@ class Connector extends EventEmitter
       return callback error if error?
       return callback() if _.isEmpty state.conversationId
 
-      return @Lync.startVideo state.conversationId, callback if desiredState.videoEnabled
-      return @Lync.stopVideo state.conversationId, callback
+      return @Lync.stopVideo state.conversationId, callback unless desiredState.videoEnabled
+      return @Lync.startVideo state.conversationId, (error, conversations) =>
+        return callback error if error?
+        console.log 'conversations', JSON.stringify(conversations, null, 2)
+        return callback()
 
 
 module.exports = Connector
