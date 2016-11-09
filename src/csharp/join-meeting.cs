@@ -14,27 +14,29 @@ public class Startup
 {
   private ConversationWindow conversationWindow = null;
 
-  public async Task<object> Invoke(string JoinUrl)
-  {
+  public async Task<ConversationWindow> StartConversation(string JoinUrl) {
     Automation automation = LyncClient.GetAutomation();
-    var Client = LyncClient.GetClient();
 
-    JoinUrl = JoinUrl + '?';
-    var state = new Object();
-    IAsyncResult ar = automation.BeginStartConversation(JoinUrl, 0, (result) => { }, state);
-    conversationWindow = automation.EndStartConversation(ar);
-
-    var conversationId = conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
-    conversationWindow.Conversation.StateChanged += HandleStateChange;
-    return conversationId;
+    return await Task<ConversationWindow>.Factory.FromAsync(
+      automation.BeginStartConversation,
+      automation.EndStartConversation,
+      JoinUrl, 0, null, null // args passed to automation.BeginStartConversation
+    );
   }
 
-  public void HandleStateChange(object Sender, ConversationStateChangedEventArgs e)
+  public async Task<object> Invoke(string JoinUrl)
   {
-    if(e.NewState.ToString() == "Active"){
-      Thread.Sleep(3000);
-      conversationWindow.ShowContent();
-      conversationWindow.ShowFullScreen(0);
+    var conversationWindow = await StartConversation(JoinUrl + '?');
+
+    var tcs = new TaskCompletionSource<bool>();
+    conversationWindow.Conversation.StateChanged += (sender, e) => {
+      if (e.NewState.ToString() != "Active") return
+      tcs.TrySetResult(true)
     }
+    await tcs.Task;
+
+    conversationWindow.ShowContent();
+    conversationWindow.ShowFullScreen(0);
+    return conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
   }
 }
