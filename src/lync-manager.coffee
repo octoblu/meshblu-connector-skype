@@ -48,6 +48,7 @@ getState = edge.func
   references: references
 
 module.exports = {
+  createMeeting: createMeeting
   joinMeeting: joinMeeting
   startVideo: startVideo
   stopVideo: stopVideo
