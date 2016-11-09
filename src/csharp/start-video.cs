@@ -24,6 +24,7 @@ public class Startup
     EventHandler<ModalityStateChangedEventArgs> handler = null;
     handler = (sender, e) => {
       if (e.NewState != ModalityState.Connected) return;
+      if (!((AVModality)sender).VideoChannel.CanInvoke(ChannelAction.Start)) return;
       avModality.ModalityStateChanged -= handler;
       tcs.TrySetResult(true);
     };
@@ -42,14 +43,16 @@ public class Startup
     if (avModality.State != ModalityState.Connected) {
       await WaitToConnect();
     }
+
     return avModality.VideoChannel;
   }
 
   public async Task<object> Invoke(string ignored)
   {
     var videoChannel = await GetVideoChannel();
-    await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
+    if (videoChannel.IsContributing) return null;
 
+    videoChannel.BeginStart(null, null);
     return null;
   }
 }

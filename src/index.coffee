@@ -1,7 +1,7 @@
 async          = require 'async'
 {EventEmitter} = require 'events'
 _              = require 'lodash'
-# debug           = require('debug')('meshblu-connector-skype:index')
+debug           = require('debug')('meshblu-connector-skype:index')
 
 class Connector extends EventEmitter
   constructor: ({@Lync}) ->
@@ -42,11 +42,13 @@ class Connector extends EventEmitter
     ], callback
 
   _computeState: (callback) =>
+    debug '_computeState'
     @Lync.getState null, (error, state) =>
       return callback error if error?
       return callback null, state
 
   _handleAudioEnabled: (desiredState, callback) =>
+    debug '_handleAudioEnabled'
     return callback() unless _.has desiredState, 'audioEnabled'
     @Lync.getState null, (error, state) =>
       return callback error if error?
@@ -56,19 +58,23 @@ class Connector extends EventEmitter
       return @Lync.mute state.conversationId, callback
 
   _handleMeetingUrl: (desiredState, callback) =>
+    debug '_handleMeetingUrl'
     return callback() unless _.has desiredState, 'meetingUrl'
     {meetingUrl} = desiredState
 
     @Lync.stopMeetings null, (error) =>
+      debug '@Lync.stopMeetings', error
       return callback error if error?
       return callback() if _.isEmpty meetingUrl
 
       @Lync.getState null, (error, state) =>
+        debug '@Lync.getState', error, JSON.stringify(state)
         return callback error if error?
         return callback() if meetingUrl == _.get(state, 'meetingUrl')
         @Lync.joinMeeting meetingUrl, callback
 
   _handleVideoEnabled: (desiredState, callback) =>
+    debug '_handleVideoEnabled'
     return callback() unless _.has desiredState, 'videoEnabled'
 
     return @Lync.stopVideo null, callback unless desiredState.videoEnabled

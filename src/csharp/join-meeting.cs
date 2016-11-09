@@ -9,7 +9,6 @@ using Microsoft.Lync.Model.Conversation.Sharing;
 using Microsoft.Lync.Model.Conversation.AudioVideo;
 using Microsoft.Lync.Model.Extensibility;
 
-
 public class Startup
 {
   public Task<ConversationWindow> StartConversation(string joinUrl, long parentHwnd)
@@ -23,17 +22,28 @@ public class Startup
     );
   }
 
+  public async Task WaitTillCanFullscreen(ConversationWindow conversationWindow)
+  {
+    var tcs = new TaskCompletionSource<bool>();
+
+    conversationWindow.ActionAvailabilityChanged += (sender, e) => {
+      if (!conversationWindow.CanInvoke(ConversationWindowAction.FullScreen)) return;
+
+      tcs.TrySetResult(true);
+    };
+
+    await tcs.Task;
+  }
+
   public async Task<object> Invoke(string joinUrl)
   {
     joinUrl = joinUrl + '?';
     var conversationWindow = await StartConversation(joinUrl, 0);
 
-    var tcs = new TaskCompletionSource<bool>();
-    conversationWindow.Conversation.StateChanged += (sender, e) => {
-      if (e.NewState.ToString() != "Active") return;
-      tcs.TrySetResult(true);
-    };
-    await tcs.Task;
+    if (!conversationWindow.CanInvoke(ConversationWindowAction.FullScreen)) {
+      await WaitTillCanFullscreen(conversationWindow);
+    }
+
 
     conversationWindow.ShowContent();
     conversationWindow.ShowFullScreen(0);

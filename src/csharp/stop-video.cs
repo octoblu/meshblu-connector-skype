@@ -10,36 +10,49 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  private Conversation conversation = null;
-  public async Task<object> Invoke(string conversationId)
+  public Conversation GetConversation()
   {
-    Automation automation = LyncClient.GetAutomation();
-    var Client = LyncClient.GetClient();
-
-    conversation = Client.ConversationManager.Conversations.Where(c => c.Properties[ConversationProperty.Id].ToString() == conversationId).FirstOrDefault();
-    var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
-    conversation.Modalities[ModalityTypes.AudioVideo].ModalityStateChanged += HandleModalityStateChange;
-
-    if(avModality.CanInvoke(ModalityAction.Disconnect)){
-        avModality.BeginDisconnect(ModalityDisconnectReason.None, (ar) => {
-            avModality.EndDisconnect(ar);
-          }, null);
-    }
-
-    var id = conversation.Properties[ConversationProperty.Id].ToString();
-    Thread.Sleep(2000);
-    return id;
+    return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
   }
 
-  public void HandleModalityStateChange(object sender, ModalityStateChangedEventArgs e)
+  public Task WaitToConnect()
   {
-    if(e.NewState == ModalityState.Disconnected){
-      var videoChannel = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]).VideoChannel;
-      if (videoChannel.CanInvoke(ChannelAction.Stop))
-      {
-          IAsyncResult ar = videoChannel.BeginStop((result) => {}, videoChannel);
-          ((VideoChannel)ar.AsyncState).EndStop(ar);
-      }
+    var conversation = GetConversation();
+    var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+    var tcs = new TaskCompletionSource<bool>();
+
+    EventHandler<ModalityStateChangedEventArgs> handler = null;
+    handler = (sender, e) => {
+      if (e.NewState != ModalityState.Connected) return;
+      if (!((AVModality)sender).VideoChannel.CanInvoke(ChannelAction.Stop)) return;
+      avModality.ModalityStateChanged -= handler;
+      tcs.TrySetResult(true);
+    };
+
+    avModality.ModalityStateChanged += handler;
+    return tcs.Task;
+  }
+
+  public async Task<VideoChannel> GetVideoChannel()
+  {
+    var conversation = GetConversation();
+    if (conversation == null) throw new System.InvalidOperationException("Cannot stop video on non-extant conversation");
+
+    var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+
+    if (avModality.State != ModalityState.Connected) {
+      await WaitToConnect();
     }
+
+    return avModality.VideoChannel;
+  }
+
+  public async Task<object> Invoke(string ignored)
+  {
+    var videoChannel = await GetVideoChannel();
+    if (!videoChannel.IsContributing) return null;
+
+    videoChannel.BeginStop(null, null);
+    return null;
   }
 }
