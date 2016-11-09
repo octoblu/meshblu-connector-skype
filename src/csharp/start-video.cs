@@ -50,6 +50,6 @@ public class Startup
     var videoChannel = await GetVideoChannel();
     await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
 
-    return GetAllConversations().Count;
+    return null;
   }
 }
