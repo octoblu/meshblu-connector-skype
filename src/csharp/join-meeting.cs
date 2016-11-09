@@ -14,19 +14,21 @@ public class Startup
 {
   private ConversationWindow conversationWindow = null;
 
-  public async Task<ConversationWindow> StartConversation(string JoinUrl) {
+  //
+  public async Task<ConversationWindow> StartConversation(string joinUrl, long parentHwnd) {
     Automation automation = LyncClient.GetAutomation();
 
     return await Task<ConversationWindow>.Factory.FromAsync(
       automation.BeginStartConversation,
       automation.EndStartConversation,
-      JoinUrl, 0, null, null // args passed to automation.BeginStartConversation
+      joinUrl, parentHwnd, null // args passed to automation.BeginStartConversation
     );
   }
 
-  public async Task<object> Invoke(string JoinUrl)
+  public async Task<object> Invoke(string joinUrl)
   {
-    var conversationWindow = await StartConversation(JoinUrl + '?');
+    joinUrl = joinUrl + '?';
+    var conversationWindow = await StartConversation(joinUrl, 0);
 
     var tcs = new TaskCompletionSource<bool>();
     conversationWindow.Conversation.StateChanged += (sender, e) => {
