@@ -15,17 +15,32 @@ public class Startup
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
   }
 
-  public IList<Conversation> GetAllConversations()
+  public Task WaitToConnect()
   {
-    return LyncClient.GetClient().ConversationManager.Conversations;
+    var conversation = GetConversation();
+    var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+
+    var handler = (sender, e) => {
+      if (e.NewState != ModalityState.Connected) return;
+      avModality.ModalityStateChanged -= handler;
+      tcs.TrySetResult(true);
+    };
+
+    avModality.ModalityStateChanged += handler;
+    return tcs.Task;
   }
 
   public async Task<VideoChannel> GetVideoChannel()
   {
     var conversation = GetConversation();
     if (conversation == null) throw new System.InvalidOperationException("Cannot start video on non-extant conversation");
-    var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
 
+    var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+    var tcs = new TaskCompletionSource<bool>();
+
+    if (avModality.State != ModalityState.Connected) {
+      await WaitToConnect()
+    }
     return avModality.VideoChannel;
   }
 
