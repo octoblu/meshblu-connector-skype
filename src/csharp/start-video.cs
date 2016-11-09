@@ -40,7 +40,7 @@ public class Startup
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
 
     if (avModality.State != ModalityState.Connected) {
-      await WaitToConnect()
+      await WaitToConnect();
     }
     return avModality.VideoChannel;
   }
