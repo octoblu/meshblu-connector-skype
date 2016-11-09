@@ -59,12 +59,14 @@ class Connector extends EventEmitter
     return callback() unless _.has desiredState, 'meetingUrl'
     {meetingUrl} = desiredState
 
-    return @Lync.stopMeetings null, callback if _.isEmpty meetingUrl
-
-    @Lync.getState null, (error, state) =>
+    @Lync.stopMeetings null, (error) =>
       return callback error if error?
-      return callback() if meetingUrl == _.get(state, 'meetingUrl')
-      @Lync.joinMeeting meetingUrl, callback
+      return callback() if _.isEmpty meetingUrl
+
+      @Lync.getState null, (error, state) =>
+        return callback error if error?
+        return callback() if meetingUrl == _.get(state, 'meetingUrl')
+        @Lync.joinMeeting meetingUrl, callback
 
   _handleVideoEnabled: (desiredState, callback) =>
     return callback() unless _.has desiredState, 'videoEnabled'

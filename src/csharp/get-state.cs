@@ -41,7 +41,7 @@ public class Startup
     if (conversation == null) {
       return new ReturnValue();
     }
-    var participant = conversation.Participants.Where(p => p.IsSelf).FirstOrDefault();
+    var participant = conversation.Participants.FirstOrDefault(p => p.IsSelf);
     var videoChannel = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]).VideoChannel;
 
     string conversationId = conversation.Properties[ConversationProperty.Id].ToString();

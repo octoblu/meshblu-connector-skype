@@ -27,7 +27,7 @@ public class Startup
   public async Task<object> Invoke(string conversationId)
   {
     var videoChannel = await GetVideoChannel(conversationId);
-    async Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
+    await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
     return conversationId;
   }
 }
