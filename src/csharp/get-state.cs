@@ -46,7 +46,7 @@ public class Startup
 
     string conversationId = conversation.Properties[ConversationProperty.Id].ToString();
     string meetingUrl     = conversation.Properties[ConversationProperty.ConferencingUri].ToString();
-    bool audioEnabled     = participant.IsMuted;
+    bool audioEnabled     = !participant.IsMuted;
     bool videoEnabled     = videoChannel.IsContributing;
 
     return new ReturnValue(conversationId, meetingUrl, audioEnabled, videoEnabled);
