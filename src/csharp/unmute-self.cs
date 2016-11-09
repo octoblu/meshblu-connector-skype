@@ -18,8 +18,8 @@ public class Startup
 
     Conversation conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault(c => c.Properties[ConversationProperty.Id].ToString() == conversationId);
     var participant = conversation.Participants.FirstOrDefault(p => p.IsSelf);
-    participant.BeginSetMute(false, null, null);
-    participant.EndSetMute(null);
+    var ar = participant.BeginSetMute(false, null, null);
+    participant.EndSetMute(ar);
 
     return conversationId;
   }
