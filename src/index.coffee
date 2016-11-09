@@ -1,5 +1,6 @@
-{EventEmitter}  = require 'events'
-_     = require 'lodash'
+async          = require 'async'
+{EventEmitter} = require 'events'
+_              = require 'lodash'
 # debug           = require('debug')('meshblu-connector-skype:index')
 
 class Connector extends EventEmitter
@@ -17,18 +18,21 @@ class Connector extends EventEmitter
     console.log 'onConfig', JSON.stringify desiredState
     return callback() if _.isEmpty desiredState
 
-    @_handleMeetingUrl desiredState, (error) =>
-      return callback error if error?
+    @_handleDesiredState desiredState, (error) =>
+      if error
+        console.error error.stack
+        return callback error
 
-      @_handleAudioEnabled desiredState, (error) =>
+      @_computeState (error, state) =>
         return callback error if error?
+        @emit 'update', {state, desiredState: {}}
 
-        @_handleVideoEnabled desiredState, (error) =>
-          return callback error if error?
-
-          @_computeState (error, state) =>
-            return callback error if error?
-            @emit 'update', {state, desiredState: {}}
+  _handleDesiredState: (desiredState, callback) =>
+    async.series [
+      async.apply(@_handleMeetingUrl,   desiredState)
+      async.apply(@_handleAudioEnabled, desiredState)
+      async.apply(@_handleVideoEnabled, desiredState)
+    ], callback
 
   _computeState: (callback) =>
     @Lync.getState null, (error, state) =>
