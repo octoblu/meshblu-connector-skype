@@ -70,15 +70,12 @@ class Connector extends EventEmitter
 
   _handleVideoEnabled: (desiredState, callback) =>
     return callback() unless _.has desiredState, 'videoEnabled'
-    @Lync.getState null, (error, state) =>
-      return callback error if error?
-      return callback() if _.isEmpty state.conversationId
 
-      return @Lync.stopVideo state.conversationId, callback unless desiredState.videoEnabled
-      return @Lync.startVideo state.conversationId, (error, conversations) =>
-        return callback error if error?
-        console.log 'conversations', JSON.stringify(conversations, null, 2)
-        return callback()
+    return @Lync.stopVideo null, callback unless desiredState.videoEnabled
+    return @Lync.startVideo null, (error, conversations) =>
+      return callback error if error?
+      console.log 'conversations', JSON.stringify(conversations, null, 2)
+      return callback()
 
 
 module.exports = Connector

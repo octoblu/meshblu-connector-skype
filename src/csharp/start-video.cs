@@ -10,30 +10,33 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  public Conversation GetConversation(string conversationId)
+  public Conversation GetConversation()
   {
-    return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault(c => c.Properties[ConversationProperty.Id].ToString() == conversationId);
+    return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
   }
 
-  public Conversation GetAllConversations()
+  public IList<Conversation> GetAllConversations()
   {
-    return LyncClient.GetClient().ConversationManager.Conversations
+    return LyncClient.GetClient().ConversationManager.Conversations;
   }
 
-  public async Task<VideoChannel> GetVideoChannel(string conversationId)
+  public async Task<VideoChannel> GetVideoChannel()
   {
-    var conversation = GetConversation(conversationId);
+    var conversation = GetConversation();
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+
+    if (avModality.State == ModalityState.Connected) return avModality.VideoChannel;
+
     await Task.Factory.FromAsync(avModality.BeginConnect, avModality.EndConnect, null);
 
     return avModality.VideoChannel;
   }
 
-  public async Task<object> Invoke(string conversationId)
+  public async Task<object> Invoke(string ignored)
   {
-    return GetAllConversations()
-    // var videoChannel = await GetVideoChannel(conversationId);
-    // await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
-    // return conversationId;
+    var videoChannel = await GetVideoChannel();
+    await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
+
+    return GetAllConversations().Count;
   }
 }
