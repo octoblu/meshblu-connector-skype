@@ -13,9 +13,9 @@ class Connector extends EventEmitter
   close: (callback) =>
     return callback()
 
-  onConfig: (device, callback) =>
-    console.log 'onConfig'
+  onConfig: (device, callback=->) =>
     desiredState = _.get device, 'desiredState', {}
+    return callback() if _.isEmpty desiredState
 
     @_handleMeetingUrl desiredState, (error) =>
       return callback error if error?
@@ -46,7 +46,7 @@ class Connector extends EventEmitter
     return callback() unless _.has desiredState, 'meetingUrl'
     {meetingUrl} = desiredState
 
-    return @Lync.stopMeetings callback if _.isEmpty meetingUrl
+    return @Lync.stopMeetings null, callback if _.isEmpty meetingUrl
 
     @Lync.getState null, (error, state) =>
       return callback error if error?

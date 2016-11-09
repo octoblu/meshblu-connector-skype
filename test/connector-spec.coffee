@@ -19,25 +19,36 @@ describe 'Connector', ->
   afterEach (done) ->
     @sut.close done
 
+  describe 'Empty desiredState', ->
+    beforeEach (done) ->
+      @sut.on 'update', => done new Error ('this should not happen')
+      @sut.onConfig desiredState: {}, =>
+      setInterval done, 1000
+
+    it 'should not emit update', ->
+      # getting here is good enough
+
   describe 'Enable Audio', ->
     beforeEach (done) ->
       @sut.on 'update', (@update) => done()
       @Lync.unmute.yields()
       @Lync.getState.yields null, {
-        meetingUrl: 'https://meet.go.co/alskdjf'
+        meetingUrl:     'https://meet.go.co/alskdjf'
+        conversationId: '123'
         audioEnabled: true
       }
       @sut.onConfig desiredState: {audioEnabled: true}
 
     it 'should call Lync.unmute', ->
-      expect(@Lync.unmute).to.have.been.called
+      expect(@Lync.unmute).to.have.been.calledWith '123'
 
     it 'should emit an update with an empty desiredState, and the new actual state', ->
       expect(@update).to.deep.equal {
         desiredState: {}
         state:
-          meetingUrl: 'https://meet.go.co/alskdjf'
-          audioEnabled: true
+          meetingUrl:     'https://meet.go.co/alskdjf'
+          conversationId: '123'
+          audioEnabled:   true
       }
 
   describe 'Disable Audio', ->
@@ -46,6 +57,7 @@ describe 'Connector', ->
       @Lync.mute.yields()
       @Lync.getState.yields null, {
         meetingUrl: 'https://meet.go.co/alskdjf'
+        conversationId: '321'
         audioEnabled: false
       }
       @sut.onConfig desiredState: {audioEnabled: false}
@@ -58,6 +70,7 @@ describe 'Connector', ->
         desiredState: {}
         state:
           meetingUrl: 'https://meet.go.co/alskdjf'
+          conversationId: '321'
           audioEnabled: false
       }
 
@@ -147,7 +160,7 @@ describe 'Connector', ->
       @sut.on 'update', (@update) => done()
       @Lync.stopMeetings.yields()
       @Lync.getState.yields null, {
-        meetingUrl: null
+        meetingUrl: 'https://meeting.i.was.already.in'
         audioEnabled: false
       }
       @sut.onConfig {
@@ -162,13 +175,12 @@ describe 'Connector', ->
       expect(@update).to.deep.equal {
         desiredState: {}
         state:
-          meetingUrl: null
+          meetingUrl: 'https://meeting.i.was.already.in'
           audioEnabled: false
       }
 
   describe 'Enable Video', ->
   describe 'Disable Video', ->
-
 
   describe 'Start', ->
     xit 'should start', ->
