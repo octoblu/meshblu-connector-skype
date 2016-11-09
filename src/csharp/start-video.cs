@@ -10,11 +10,13 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  public Conversation GetConversation(string conversationId) {
+  public Conversation GetConversation(string conversationId) 
+  {
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault(c => c.Properties[ConversationProperty.Id].ToString() == conversationId);
   }
 
-  public async Task<VideoChannel> GetVideoChannel(conversationId) {
+  public async Task<VideoChannel> GetVideoChannel(conversationId)
+  {
     var conversation = GetConversation(conversationId);
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
     await Task.Factory.FromAsync(avModality.BeginConnect, avModality.EndConnect, null);
@@ -28,18 +30,4 @@ public class Startup
     async Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
     return conversationId;
   }
-  // public void HandleModalityStateChange(object sender, ModalityStateChangedEventArgs e)
-  // {
-  //   if(e.NewState == ModalityState.Connected){
-  //     if (_VideoChannel == null)
-  //     {
-  //         _VideoChannel = ((AVModality)sender).VideoChannel;
-  //     }
-  //     if (_VideoChannel.CanInvoke(ChannelAction.Start))
-  //     {
-  //         IAsyncResult ar = _VideoChannel.BeginStart((result) => {}, _VideoChannel);
-  //         ((VideoChannel)ar.AsyncState).EndStart(ar);
-  //     }
-  //   }
-  // }
 }

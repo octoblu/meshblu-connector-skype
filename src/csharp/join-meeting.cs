@@ -12,10 +12,8 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  private ConversationWindow conversationWindow = null;
-
-  //
-  public async Task<ConversationWindow> StartConversation(string joinUrl, long parentHwnd) {
+  public async Task<ConversationWindow> StartConversation(string joinUrl, long parentHwnd)
+  {
     Automation automation = LyncClient.GetAutomation();
 
     return await Task<ConversationWindow>.Factory.FromAsync(
