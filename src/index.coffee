@@ -30,7 +30,7 @@ class Connector extends EventEmitter
   _updateCurrentState: (callback) =>
     @_computeState (error, state) =>
       return callback error if error?
-      console.log 'state', JSON.stringify state
+      console.log 'state', JSON.stringify {state, desiredState: {}}
       @emit 'update', {state, desiredState: {}}
       callback()
 
