@@ -10,12 +10,12 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  public Conversation GetConversation(string conversationId) 
+  public Conversation GetConversation(string conversationId)
   {
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault(c => c.Properties[ConversationProperty.Id].ToString() == conversationId);
   }
 
-  public async Task<VideoChannel> GetVideoChannel(conversationId)
+  public async Task<VideoChannel> GetVideoChannel(string conversationId)
   {
     var conversation = GetConversation(conversationId);
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
