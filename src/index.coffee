@@ -14,6 +14,7 @@ class Connector extends EventEmitter
     return callback()
 
   onConfig: (device, callback) =>
+    console.log 'onConfig'
     desiredState = _.get device, 'desiredState', {}
 
     @_handleMeetingUrl desiredState, (error) =>
@@ -33,8 +34,13 @@ class Connector extends EventEmitter
 
   _handleAudioEnabled: (desiredState, callback) =>
     return callback() unless _.has desiredState, 'audioEnabled'
-    return @Lync.unmute callback if desiredState.audioEnabled
-    return @Lync.mute callback
+    @Lync.getState null, (error, state) =>
+      console.log 'state', JSON.stringify state
+      return callback error if error?
+      return callback() if _.isEmpty state.conversationId
+
+      return @Lync.unmute state.conversationId, callback if desiredState.audioEnabled
+      return @Lync.mute state.conversationId, callback
 
   _handleMeetingUrl: (desiredState, callback) =>
     return callback() unless _.has desiredState, 'meetingUrl'
@@ -42,8 +48,7 @@ class Connector extends EventEmitter
 
     return @Lync.stopMeetings callback if _.isEmpty meetingUrl
 
-    @Lync.getState 'hi', (error, state) =>
-      console.log 'getState', error, state
+    @Lync.getState null, (error, state) =>
       return callback error if error?
       return callback() if meetingUrl == _.get(state, 'meetingUrl')
       @Lync.joinMeeting meetingUrl, callback
