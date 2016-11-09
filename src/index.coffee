@@ -1,4 +1,3 @@
-async = require 'async'
 {EventEmitter}  = require 'events'
 _     = require 'lodash'
 # debug           = require('debug')('meshblu-connector-skype:index')
@@ -7,8 +6,8 @@ class Connector extends EventEmitter
   constructor: ({@Lync}) ->
     @Lync ?= require './lync-manager'
 
-  start: (arg, callback) =>
-    return callback()
+  start: (device, callback) =>
+    return @onConfig device, callback
 
   close: (callback) =>
     return callback()
@@ -23,9 +22,12 @@ class Connector extends EventEmitter
       @_handleAudioEnabled desiredState, (error) =>
         return callback error if error?
 
-        @_computeState (error, state) =>
+        @_handleVideoEnabled desiredState, (error) =>
           return callback error if error?
-          @emit 'update', {state, desiredState: {}}
+
+          @_computeState (error, state) =>
+            return callback error if error?
+            @emit 'update', {state, desiredState: {}}
 
   _computeState: (callback) =>
     @Lync.getState null, (error, state) =>
@@ -35,7 +37,6 @@ class Connector extends EventEmitter
   _handleAudioEnabled: (desiredState, callback) =>
     return callback() unless _.has desiredState, 'audioEnabled'
     @Lync.getState null, (error, state) =>
-      console.log 'state', JSON.stringify state
       return callback error if error?
       return callback() if _.isEmpty state.conversationId
 
@@ -52,5 +53,15 @@ class Connector extends EventEmitter
       return callback error if error?
       return callback() if meetingUrl == _.get(state, 'meetingUrl')
       @Lync.joinMeeting meetingUrl, callback
+
+  _handleVideoEnabled: (desiredState, callback) =>
+    return callback() unless _.has desiredState, 'videoEnabled'
+    @Lync.getState null, (error, state) =>
+      return callback error if error?
+      return callback() if _.isEmpty state.conversationId
+
+      return @Lync.startVideo state.conversationId, callback if desiredState.videoEnabled
+      return @Lync.stopVideo state.conversationId, callback
+
 
 module.exports = Connector

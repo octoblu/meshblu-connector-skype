@@ -10,6 +10,8 @@ describe 'Connector', ->
       getConferenceUri: sinon.stub().yields()
       getState:         sinon.stub()
       joinMeeting:      sinon.stub()
+      startVideo:       sinon.stub()
+      stopVideo:        sinon.stub()
       stopMeetings:     sinon.stub()
       mute:             sinon.stub()
       unmute:           sinon.stub()
@@ -23,7 +25,7 @@ describe 'Connector', ->
     beforeEach (done) ->
       @sut.on 'update', => done new Error ('this should not happen')
       @sut.onConfig desiredState: {}, =>
-      setInterval done, 1000
+      setTimeout done, 100
 
     it 'should not emit update', ->
       # getting here is good enough
@@ -72,6 +74,56 @@ describe 'Connector', ->
           meetingUrl: 'https://meet.go.co/alskdjf'
           conversationId: '321'
           audioEnabled: false
+      }
+
+  describe 'Enable Video', ->
+    beforeEach (done) ->
+      @sut.on 'update', (@update) => done()
+      @Lync.startVideo.yields()
+      @Lync.getState.yields null, {
+        meetingUrl:     'https://meet.go.co/alskdjf'
+        conversationId: '123'
+        audioEnabled: true
+        videoEnabled: true
+      }
+      @sut.onConfig desiredState: {videoEnabled: true}
+
+    it 'should call Lync.startVideo', ->
+      expect(@Lync.startVideo).to.have.been.calledWith '123'
+
+    it 'should emit an update with an empty desiredState, and the new actual state', ->
+      expect(@update).to.deep.equal {
+        desiredState: {}
+        state:
+          meetingUrl:     'https://meet.go.co/alskdjf'
+          conversationId: '123'
+          audioEnabled:   true
+          videoEnabled:   true
+      }
+
+  describe 'Disable Video', ->
+    beforeEach (done) ->
+      @sut.on 'update', (@update) => done()
+      @Lync.stopVideo.yields()
+      @Lync.getState.yields null, {
+        meetingUrl:     'https://meet.go.co/alskdjf'
+        conversationId: '123'
+        audioEnabled: true
+        videoEnabled: false
+      }
+      @sut.onConfig desiredState: {videoEnabled: false}
+
+    it 'should call Lync.startVideo', ->
+      expect(@Lync.stopVideo).to.have.been.calledWith '123'
+
+    it 'should emit an update with an empty desiredState, and the new actual state', ->
+      expect(@update).to.deep.equal {
+        desiredState: {}
+        state:
+          meetingUrl:     'https://meet.go.co/alskdjf'
+          conversationId: '123'
+          audioEnabled:   true
+          videoEnabled:   false
       }
 
   describe 'Start a Meeting', ->
@@ -178,9 +230,6 @@ describe 'Connector', ->
           meetingUrl: 'https://meeting.i.was.already.in'
           audioEnabled: false
       }
-
-  describe 'Enable Video', ->
-  describe 'Disable Video', ->
 
   describe 'Start', ->
     xit 'should start', ->
