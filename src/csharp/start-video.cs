@@ -23,11 +23,8 @@ public class Startup
   public async Task<VideoChannel> GetVideoChannel()
   {
     var conversation = GetConversation();
+    if (conversation == null) throw new System.InvalidOperationException("Cannot start video on non-extant conversation");
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
-
-    if (avModality.State == ModalityState.Connected) return avModality.VideoChannel;
-
-    await Task.Factory.FromAsync(avModality.BeginConnect, avModality.EndConnect, null);
 
     return avModality.VideoChannel;
   }
