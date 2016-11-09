@@ -11,10 +11,15 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  public Task<ConversationWindow> StartConversation()
+  public async Task<ConversationWindow> StartConversation()
   {
     Automation automation = LyncClient.GetAutomation();
-    return Task<ConversationWindow>.Factory.FromAsync(automation.BeginMeetNow, automation.EndMeetNow, null);
+    var conversationWindow = await Task<ConversationWindow>.Factory.FromAsync(automation.BeginMeetNow, automation.EndMeetNow, null);
+    var conversation = conversationWindow.Conversation;
+    var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+
+    await Task.Factory.FromAsync(avModality.BeginConnect, avModality.EndConnect, null);
+    return conversationWindow;
   }
 
   public async Task WaitTillCanFullscreen(ConversationWindow conversationWindow)
@@ -37,7 +42,6 @@ public class Startup
     if (!conversationWindow.CanInvoke(ConversationWindowAction.FullScreen)) {
       await WaitTillCanFullscreen(conversationWindow);
     }
-
 
     conversationWindow.ShowContent();
     conversationWindow.ShowFullScreen(0);
