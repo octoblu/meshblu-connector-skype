@@ -32,9 +32,9 @@ public class Startup
 
     var tcs = new TaskCompletionSource<bool>();
     conversationWindow.Conversation.StateChanged += (sender, e) => {
-      if (e.NewState.ToString() != "Active") return
-      tcs.TrySetResult(true)
-    }
+      if (e.NewState.ToString() != "Active") return;
+      tcs.TrySetResult(true);
+    };
     await tcs.Task;
 
     conversationWindow.ShowContent();
