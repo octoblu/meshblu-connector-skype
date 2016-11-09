@@ -16,7 +16,7 @@ public class Startup
   {
     Automation automation = LyncClient.GetAutomation();
 
-    return await Task<ConversationWindow>.Factory.FromAsync(
+    return Task<ConversationWindow>.Factory.FromAsync(
       automation.BeginStartConversation,
       automation.EndStartConversation,
       joinUrl, parentHwnd, null // args passed to automation.BeginStartConversation
