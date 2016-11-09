@@ -36,7 +36,7 @@
     "fs-cson": "^0.3.2",
     "lodash": "^4.16.6",
     "meshblu-config": "^4.0.0",
-    "meshblu-connector-runner": "^9.2.1",
+    "meshblu-connector-runner": "^10.0.0",
     "meshblu-connector-schema-generator": "^2.1.0"
   },
   "meshbluConnector": {
