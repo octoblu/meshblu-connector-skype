@@ -13,7 +13,7 @@ public class Startup
   public async Task<object> Invoke(string conversationId)
   {
     if (conversationId == null) {
-      throw new System.ArgumentException("Parameter cannot be null", "conversationId")
+      throw new System.ArgumentException("Parameter cannot be null", "conversationId");
     }
 
     Conversation conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault(c => c.Properties[ConversationProperty.Id].ToString() == conversationId);

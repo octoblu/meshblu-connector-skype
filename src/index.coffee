@@ -14,6 +14,7 @@ class Connector extends EventEmitter
 
   onConfig: (device, callback=->) =>
     desiredState = _.get device, 'desiredState', {}
+    console.log 'onConfig', JSON.stringify desiredState
     return callback() if _.isEmpty desiredState
 
     @_handleMeetingUrl desiredState, (error) =>
