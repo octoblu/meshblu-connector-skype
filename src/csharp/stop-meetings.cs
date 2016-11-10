@@ -10,27 +10,27 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  private Automation automation = LyncClient.GetAutomation();
-  private Conversation conver = null;
-
-  public async Task<object> Invoke(string conversationId)
-  {
-    var Client = LyncClient.GetClient();
-
-    if(conversationId != null){
-      conver = Client.ConversationManager.Conversations.Where(c => c.Properties[ConversationProperty.Id].ToString() == conversationId).FirstOrDefault();
-      stopConversation(conver);
-    }else if(conversationId == null){
-      Client.ConversationManager.Conversations.ToList().ForEach(c => {
-        stopConversation(c);
-      });
+  private async Task stopConversation(Conversation conversation) {
+    // var window = automation.GetConversationWindow(conversation);
+    // window.Close();
+    var tcs = new TaskCompletionSource<bool>();
+    conversation.StateChanged += (sender, e) => {
+      System.Console.WriteLine("StateChanged: ", e.NewState);
+      if (e.NewState == ConversationState.Terminated) return;
+      tcs.TrySetResult(true);
     }
-    return !false;
+
+    conversation.End();
+    await tcs.Task;
+    return;
   }
 
-  private void stopConversation(Conversation conversation){
-    var window = automation.GetConversationWindow(conversation);
-    window.Close();
-    conversation.End();
+  public async Task<object> Invoke(string ignored)
+  {
+    for(Conversation conversation in LyncClient.GetClient().ConversationManager.Conversations) {
+      await stopConversation(c);
+    }
+
+    return null;
   }
 }
