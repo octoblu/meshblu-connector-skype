@@ -63,7 +63,7 @@ public class Startup
   {
     var videoChannel = await GetVideoChannel();
     if (videoChannel.State == ChannelState.Connecting) await waitTillConnected(videoChannel);
-    if (videoChannel.State == ChannelState.Receive) return null;
+    if (videoChannel.State == ChannelState.Send) return null;
     if (videoChannel.State == ChannelState.SendReceive) return null;
 
     videoChannel.BeginStart(null, null);
