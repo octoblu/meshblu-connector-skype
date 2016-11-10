@@ -10,17 +10,18 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  public async Task<object> Invoke(string conversationId)
+  public Conversation GetConversation()
   {
-    if (conversationId == null) {
-      throw new System.ArgumentException("Parameter cannot be null", "conversationId");
-    }
+    return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
+  }
 
-    Conversation conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault(c => c.Properties[ConversationProperty.Id].ToString() == conversationId);
+  public async Task<object> Invoke(string ignored)
+  {
+    Conversation conversation = GetConversation()
     var participant = conversation.Participants.FirstOrDefault(p => p.IsSelf);
-    var ar = participant.BeginSetMute(false, null, null);
-    participant.EndSetMute(ar);
 
-    return conversationId;
+    await Task<ConversationWindow>.Factory.FromAsync(participant.BeginSetMute, participant.EndSetMute, false, null);
+
+    return null;
   }
 }

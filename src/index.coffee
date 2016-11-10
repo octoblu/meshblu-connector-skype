@@ -50,12 +50,9 @@ class Connector extends EventEmitter
   _handleAudioEnabled: (desiredState, callback) =>
     debug '_handleAudioEnabled'
     return callback() unless _.has desiredState, 'audioEnabled'
-    @Lync.getState null, (error, state) =>
-      return callback error if error?
-      return callback() if _.isEmpty state.conversationId
 
-      return @Lync.unmute state.conversationId, callback if desiredState.audioEnabled
-      return @Lync.mute state.conversationId, callback
+    return @Lync.unmute null, callback if desiredState.audioEnabled
+    return @Lync.mute null, callback
 
   _handleMeeting: (desiredState, callback) =>
     debug '_handleMeeting'
@@ -74,9 +71,7 @@ class Connector extends EventEmitter
     return callback() unless _.has desiredState, 'videoEnabled'
 
     return @Lync.stopVideo null, callback unless desiredState.videoEnabled
-    return @Lync.startVideo null, (error, conversations) =>
-      return callback error if error?
-      return callback()
+    return @Lync.startVideo null, callback
 
 
 module.exports = Connector
