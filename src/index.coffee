@@ -22,7 +22,7 @@ class Connector extends EventEmitter
 
     @_computeState (error, state) =>
       return callback error if error
-      return @_emitUpdate {state}, callback unless state.hasClient
+      return @_emitNoClient {state}, callback unless state.hasClient
 
       @_handleDesiredState desiredState, (error) =>
         if error
@@ -35,6 +35,10 @@ class Connector extends EventEmitter
     @_computeState (error, state) =>
       return callback error if error?
       @_emitUpdate _.defaults({state}, update), callback
+
+  _emitNoClient: ({state}, callback) =>
+    @emit 'error', new Error('Cannot find running Lync Process')
+    @_emitUpdate {state}, callback
 
   _emitUpdate: (update, callback) =>
     return callback() if _.isEqual update, @_previousUpdate

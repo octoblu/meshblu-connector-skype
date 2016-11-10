@@ -30,8 +30,12 @@ describe 'Connector', ->
 
       describe 'and start is called', ->
         beforeEach (done) ->
+          @sut.on 'error', (@error) =>
           @sut.on 'update', (@update) =>
           @sut.start {desiredState: {meeting: {url: 'something'}}}, done
+
+        it 'should emit an error', ->
+          expect(=> throw @error).to.throw 'Cannot find running Lync Process'
 
         it 'should update the state but leave desiredState alone', ->
           expect(@update).to.deep.equal {
