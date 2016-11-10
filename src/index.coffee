@@ -8,7 +8,7 @@ class Connector extends EventEmitter
     @Lync ?= require './lync-manager'
 
   start: (device, callback) =>
-    setInterval @_refreshCurrentState, 15000
+    setInterval @_refreshCurrentState, 5000
 
     @_computeState (error, state) =>
       return callback error if error
@@ -38,7 +38,9 @@ class Connector extends EventEmitter
       @_emitUpdate _.defaults({state}, update), callback
 
   _emitUpdate: (update, callback) =>
+    return callback() if _.isEqual update, @_previousUpdate
     @emit 'update', update
+    @__emitUpdate = update
     callback()
 
   _handleDesiredState: (desiredState, callback) =>
