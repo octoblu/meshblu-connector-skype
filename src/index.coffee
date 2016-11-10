@@ -8,14 +8,10 @@ class Connector extends EventEmitter
     @Lync ?= require './lync-manager'
 
   start: (device, callback) =>
-    @_computeState (error, state) =>
+    @onConfig device, (error) =>
       return callback error if error
-      return @_emitUpdate {state}, callback unless state.hasClient
-
-      @onConfig device, (error) =>
-        return callback error if error
-        setInterval @_refreshCurrentState, 5000
-        @_refreshCurrentState null, callback
+      setInterval @_refreshCurrentState, 5000
+      @_refreshCurrentState null, callback
 
   close: (callback) =>
     return callback()
@@ -24,12 +20,16 @@ class Connector extends EventEmitter
     desiredState = _.get device, 'desiredState', {}
     return callback() if _.isEmpty desiredState
 
-    @_handleDesiredState desiredState, (error) =>
-      if error
-        console.error error.stack
-        return callback error
+    @_computeState (error, state) =>
+      return callback error if error
+      return @_emitUpdate {state}, callback unless state.hasClient
 
-      @_refreshCurrentState desiredState: {}, callback
+      @_handleDesiredState desiredState, (error) =>
+        if error
+          console.error error.stack
+          return callback error
+
+        @_refreshCurrentState desiredState: {}, callback
 
   _refreshCurrentState: (update=null, callback=->) =>
     @_computeState (error, state) =>

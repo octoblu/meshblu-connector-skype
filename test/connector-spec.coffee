@@ -84,6 +84,7 @@ describe 'Connector', ->
         @sut.on 'update', (@update) => done()
         @Lync.unmute.yields()
         @Lync.getState.yields null, {
+          hasClient: true
           meeting:
             url: 'https://meet.go.co/alskdjf'
           conversationId: '123'
@@ -98,6 +99,7 @@ describe 'Connector', ->
         expect(@update).to.deep.equal {
           desiredState: {}
           state:
+            hasClient: true
             meeting:
               url: 'https://meet.go.co/alskdjf'
             conversationId: '123'
@@ -109,6 +111,7 @@ describe 'Connector', ->
         @sut.on 'update', (@update) => done()
         @Lync.mute.yields()
         @Lync.getState.yields null, {
+          hasClient: true
           meeting:
             url: 'https://meet.go.co/alskdjf'
           conversationId: '321'
@@ -123,6 +126,7 @@ describe 'Connector', ->
         expect(@update).to.deep.equal {
           desiredState: {}
           state:
+            hasClient: true
             meeting:
               url: 'https://meet.go.co/alskdjf'
             conversationId: '321'
@@ -134,6 +138,7 @@ describe 'Connector', ->
         @sut.on 'update', (@update) => done()
         @Lync.startVideo.yields()
         @Lync.getState.yields null, {
+          hasClient: true
           meeting:
             url: 'https://meet.go.co/alskdjf'
           conversationId: '123'
@@ -149,6 +154,7 @@ describe 'Connector', ->
         expect(@update).to.deep.equal {
           desiredState: {}
           state:
+            hasClient: true
             meeting:
               url: 'https://meet.go.co/alskdjf'
             conversationId: '123'
@@ -161,6 +167,7 @@ describe 'Connector', ->
         @sut.on 'update', (@update) => done()
         @Lync.stopVideo.yields()
         @Lync.getState.yields null, {
+          hasClient: true
           meeting:
             url: 'https://meet.go.co/alskdjf'
           conversationId: '123'
@@ -176,6 +183,7 @@ describe 'Connector', ->
         expect(@update).to.deep.equal {
           desiredState: {}
           state:
+            hasClient: true
             meeting:
               url: 'https://meet.go.co/alskdjf'
             conversationId: '123'
@@ -196,6 +204,7 @@ describe 'Connector', ->
             @Lync.stopMeetings.yields()
             @Lync.joinMeeting.yields()
             @Lync.getState.yields null, {
+              hasClient: true
               meeting:
                 url: 'https://meet.go.co/alskdjf'
               audioEnabled: false
@@ -213,6 +222,7 @@ describe 'Connector', ->
             expect(@update).to.deep.equal {
               desiredState: {}
               state:
+                hasClient: true
                 meeting:
                   url: 'https://meet.go.co/alskdjf'
                 audioEnabled: false
@@ -224,6 +234,7 @@ describe 'Connector', ->
             @Lync.stopMeetings.yields()
             @Lync.createMeeting.yields()
             @Lync.getState.yields null, {
+              hasClient: true
               meeting:
                 url: 'https://meet.go.co/alskdjf'
               audioEnabled: false
@@ -241,6 +252,7 @@ describe 'Connector', ->
             expect(@update).to.deep.equal {
               desiredState: {}
               state:
+                hasClient: true
                 meeting:
                   url: 'https://meet.go.co/alskdjf'
                 audioEnabled: false
@@ -256,6 +268,7 @@ describe 'Connector', ->
             @Lync.stopMeetings.yields()
             @Lync.joinMeeting.yields()
             @Lync.getState.yields null, {
+              hasClient: true
               meeting:
                 url: 'https://meeting.im.in.now'
             }
@@ -272,6 +285,7 @@ describe 'Connector', ->
             expect(@update).to.deep.equal {
               desiredState: {}
               state:
+                hasClient: true
                 meeting:
                   url: 'https://meeting.im.in.now'
             }
@@ -281,6 +295,7 @@ describe 'Connector', ->
         @sut.on 'update', (@update) => done()
         @Lync.stopMeetings.yields()
         @Lync.getState.yields null, {
+          hasClient: true
           meeting:
             url: 'https://meeting.i.was.already.in'
           audioEnabled: false
@@ -297,6 +312,7 @@ describe 'Connector', ->
         expect(@update).to.deep.equal {
           desiredState: {}
           state:
+            hasClient: true
             meeting:
               url: 'https://meeting.i.was.already.in'
             audioEnabled: false
