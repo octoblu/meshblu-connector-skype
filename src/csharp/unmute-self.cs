@@ -18,7 +18,7 @@ public class Startup
   public async Task<object> Invoke(string ignored)
   {
     Conversation conversation = GetConversation();
-    if (conversation == null) return null;
+    if (conversation == null) return throw new System.InvalidOperationException("Cannot enable audio on non-extant conversation");;
 
     var participant = conversation.Participants.FirstOrDefault(p => p.IsSelf);
 

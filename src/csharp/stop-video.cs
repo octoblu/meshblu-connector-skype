@@ -36,7 +36,7 @@ public class Startup
   public async Task<VideoChannel> GetVideoChannel()
   {
     var conversation = GetConversation();
-    if (conversation == null) throw new System.InvalidOperationException("Cannot stop video on non-extant conversation");
+    if (conversation == null) throw new System.InvalidOperationException("Cannot disable video on non-extant conversation");
 
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
 
