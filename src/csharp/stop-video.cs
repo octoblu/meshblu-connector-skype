@@ -50,7 +50,7 @@ public class Startup
   public async Task<object> Invoke(string ignored)
   {
     var videoChannel = await GetVideoChannel();
-    if (!videoChannel.IsContributing) return null;
+    if (videoChannel.State == ChannelState.None) return null;
 
     videoChannel.BeginStop(null, null);
     return null;

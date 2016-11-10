@@ -12,7 +12,7 @@ public class Meeting
 {
   public string url;
 
-  Meeting(string url) {
+  public Meeting(string url) {
     this.url = url;
   }
 }
@@ -53,7 +53,7 @@ public class Startup
     string conversationId = conversation.Properties[ConversationProperty.Id].ToString();
     string meetingUrl     = conversation.Properties[ConversationProperty.ConferencingUri].ToString();
     bool audioEnabled     = !participant.IsMuted;
-    bool videoEnabled     = videoChannel.IsContributing;
+    bool videoEnabled     = (videoChannel.State != ChannelState.None);
 
     return new ReturnValue(conversationId, meetingUrl, audioEnabled, videoEnabled);
   }
