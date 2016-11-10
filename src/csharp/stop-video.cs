@@ -47,10 +47,24 @@ public class Startup
     return avModality.VideoChannel;
   }
 
+  private Task waitTillConnected(VideoChannel videoChannel)
+  {
+    var tcs = new TaskCompletionSource<bool>();
+
+    videoChannel.StateChanged += (sender, e) => {
+      if (e.NewState == ChannelState.Connecting) return;
+      tcs.TrySetResult(true);
+    };
+
+    return tcs.Task;
+  }
+
   public async Task<object> Invoke(string ignored)
   {
     var videoChannel = await GetVideoChannel();
-    if (videoChannel.State == ChannelState.None) return null;
+    if (videoChannel.State == ChannelState.Connecting) await waitTillConnected(videoChannel);
+    if (videoChannel.State == ChannelState.Receive) return null;
+    if (videoChannel.State == ChannelState.SendReceive) return null;
 
     videoChannel.BeginStop(null, null);
     return null;
