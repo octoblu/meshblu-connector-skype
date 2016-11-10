@@ -5,30 +5,17 @@ properties:
     title: "Desired State"
     type: "object"
     properties:
-      url:
-        title: "Meeting Url"
-        type: "string"
-      state:
-        title: "State"
-        type: "string"
-        "enum": [
-          'Join Meeting'
-          'Meet Now'
-          'End Meeting'
-        ]
-        default: "End Meeting"
-        description: "Meet Now creates a new meeting and updates conferencing_uri on the device state"
-      enable_video:
+      meeting:
+        type: "object"
+        properties:
+          url:
+            title: "Meeting Url"
+            type: "string"
+      videoEnabled:
         title: "Enable Video"
         type: "boolean"
-        default: true
-      enable_audio:
+        default: false
+      audioEnabled:
         title: "Enable Audio"
         type: "boolean"
-        default: true
-    required: [
-      "url"
-      "state"
-      "enable_video"
-      "enable_audio"
-    ]
+        default: false

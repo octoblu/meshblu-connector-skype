@@ -1,6 +1,5 @@
 angular: [
-  { key: "desiredState.url" }
-  { key: "desiredState.state" }
-  { key: "desiredState.enable_video" }
-  { key: "desiredState.enable_audio" }
+  { key: "desiredState.meeting.url" }
+  { key: "desiredState.videoEnabled" }
+  { key: "desiredState.audioEnabled" }
 ]
