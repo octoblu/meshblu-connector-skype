@@ -8,23 +8,32 @@ using Microsoft.Lync.Model.Conversation;
 using Microsoft.Lync.Model.Conversation.AudioVideo;
 using Microsoft.Lync.Model.Extensibility;
 
+public class Meeting
+{
+  public string url;
+
+  Meeting(string url) {
+    this.url = url;
+  }
+}
+
 public class ReturnValue
 {
   public string conversationId;
-  public string meetingUrl;
+  public Meeting meeting;
   public bool audioEnabled;
   public bool videoEnabled;
 
   public ReturnValue() {
     conversationId = null;
-    meetingUrl = null;
+    meeting = null;
     audioEnabled = false;
     videoEnabled = false;
   }
 
   public ReturnValue(string conversationId, string meetingUrl, bool audioEnabled, bool videoEnabled) {
     this.conversationId = conversationId;
-    this.meetingUrl = meetingUrl;
+    this.meeting = new Meeting(meetingUrl);
     this.audioEnabled = audioEnabled;
     this.videoEnabled = videoEnabled;
   }
@@ -34,10 +43,7 @@ public class Startup
 {
   public async Task<object> Invoke(string ignored)
   {
-    var Client = LyncClient.GetClient();
-    Thread.Sleep(3000);
-
-    Conversation conversation = Client.ConversationManager.Conversations.FirstOrDefault();
+    Conversation conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
     if (conversation == null) {
       return new ReturnValue();
     }
