@@ -18,6 +18,8 @@ public class Startup
   public async Task<object> Invoke(string ignored)
   {
     Conversation conversation = GetConversation();
+    if (conversation == null) return null;
+
     var participant = conversation.Participants.FirstOrDefault(p => p.IsSelf);
 
     await Task.Factory.FromAsync(participant.BeginSetMute, participant.EndSetMute, false, null);
