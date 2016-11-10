@@ -17,10 +17,10 @@ public class Startup
 
   public async Task<object> Invoke(string ignored)
   {
-    Conversation conversation = GetConversation()
+    Conversation conversation = GetConversation();
     var participant = conversation.Participants.FirstOrDefault(p => p.IsSelf);
 
-    await Task<ConversationWindow>.Factory.FromAsync(participant.BeginSetMute, participant.EndSetMute, false, null);
+    await Task.Factory.FromAsync(participant.BeginSetMute, participant.EndSetMute, false, null);
 
     return null;
   }

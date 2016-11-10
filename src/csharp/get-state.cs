@@ -23,19 +23,22 @@ public class ReturnValue
   public Meeting meeting;
   public bool audioEnabled;
   public bool videoEnabled;
+  public string videoState;
 
   public ReturnValue() {
     conversationId = null;
     meeting = null;
     audioEnabled = false;
     videoEnabled = false;
+    videoState = null;
   }
 
-  public ReturnValue(string conversationId, string meetingUrl, bool audioEnabled, bool videoEnabled) {
+  public ReturnValue(string conversationId, string meetingUrl, bool audioEnabled, bool videoEnabled, string videoState) {
     this.conversationId = conversationId;
     this.meeting = new Meeting(meetingUrl);
     this.audioEnabled = audioEnabled;
     this.videoEnabled = videoEnabled;
+    this.videoState = videoState;
   }
 }
 
@@ -54,7 +57,8 @@ public class Startup
     string meetingUrl     = conversation.Properties[ConversationProperty.ConferencingUri].ToString();
     bool audioEnabled     = !participant.IsMuted;
     bool videoEnabled     = (videoChannel.State != ChannelState.None);
+    string videoState     = videoChannel.State.ToString();
 
-    return new ReturnValue(conversationId, meetingUrl, audioEnabled, videoEnabled);
+    return new ReturnValue(conversationId, meetingUrl, audioEnabled, videoEnabled, videoState);
   }
 }
