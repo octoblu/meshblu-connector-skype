@@ -11,11 +11,8 @@ using Microsoft.Lync.Model.Extensibility;
 public class Startup
 {
   private async Task stopConversation(Conversation conversation) {
-    // var window = automation.GetConversationWindow(conversation);
-    // window.Close();
     var tcs = new TaskCompletionSource<bool>();
     conversation.StateChanged += (sender, e) => {
-      System.Console.WriteLine("StateChanged: " + e.NewState);
       if (e.NewState != ConversationState.Terminated) return;
       tcs.TrySetResult(true);
     };
