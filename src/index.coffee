@@ -17,12 +17,12 @@ class Connector extends EventEmitter
     return callback()
 
   onConfig: (device, callback=->) =>
-    desiredState = _.get device, 'desiredState', {}
-    return callback() if _.isEmpty desiredState
-
     @_computeState (error, state) =>
       return callback error if error
       return @_emitNoClient {state}, callback unless state.hasClient
+
+      desiredState = _.get device, 'desiredState', {}
+      return callback() if _.isEmpty desiredState
 
       @_handleDesiredState desiredState, (error) =>
         if error
