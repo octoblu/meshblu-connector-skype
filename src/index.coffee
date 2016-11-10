@@ -6,6 +6,7 @@ debug           = require('debug')('meshblu-connector-skype:index')
 class Connector extends EventEmitter
   constructor: ({@Lync}) ->
     @Lync ?= require './lync-manager'
+    @worker = async.queue @_handleDesiredState, 1
 
   start: (device, callback) =>
     @onConfig device, (error) =>
@@ -23,8 +24,12 @@ class Connector extends EventEmitter
 
       desiredState = _.get device, 'desiredState', {}
       return callback() if _.isEmpty desiredState
+      return callback() if _.isEqual @_lastJob, desiredState
+      @_lastJob = desiredState
 
-      @_handleDesiredState desiredState, (error) =>
+      @worker.push desiredState, (error) =>
+        @_lastJob = null if _.isEqual desiredState, @_lastJob
+
         if error
           console.error error.stack
           return callback error
