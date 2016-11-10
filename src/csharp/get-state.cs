@@ -50,9 +50,19 @@ public class ReturnValue
 
 public class Startup
 {
+
+  private LyncClient getClientOrNull(){
+    try {
+      return LyncClient.GetClient();
+    } catch (ClientNotFoundException e) {
+      return null;
+    }
+  }
+
   public async Task<object> Invoke(string ignored)
   {
-    var client = LyncClient.GetClient();
+    var client = getClientOrNull();
+
     if (client == null) {
       return new ReturnValue(false, false);
     }
