@@ -40,7 +40,7 @@ class Connector extends EventEmitter
   _emitUpdate: (update, callback) =>
     return callback() if _.isEqual update, @_previousUpdate
     @emit 'update', update
-    @__emitUpdate = update
+    @_previousUpdate = update
     callback()
 
   _handleDesiredState: (desiredState, callback) =>
