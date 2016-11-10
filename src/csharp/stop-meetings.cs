@@ -15,10 +15,10 @@ public class Startup
     // window.Close();
     var tcs = new TaskCompletionSource<bool>();
     conversation.StateChanged += (sender, e) => {
-      System.Console.WriteLine("StateChanged: ", e.NewState);
-      if (e.NewState == ConversationState.Terminated) return;
+      System.Console.WriteLine("StateChanged: " + e.NewState);
+      if (e.NewState != ConversationState.Terminated) return;
       tcs.TrySetResult(true);
-    }
+    };
 
     conversation.End();
     await tcs.Task;
@@ -27,8 +27,8 @@ public class Startup
 
   public async Task<object> Invoke(string ignored)
   {
-    for(Conversation conversation in LyncClient.GetClient().ConversationManager.Conversations) {
-      await stopConversation(c);
+    foreach(Conversation conversation in LyncClient.GetClient().ConversationManager.Conversations) {
+      await stopConversation(conversation);
     }
 
     return null;
