@@ -19,14 +19,14 @@ public class Startup
   private async Task waitTillAVModalityIsConnected(AVModality avModality)
   {
     System.Console.WriteLine("start-video:waitTillAVModalityIsConnected");
-    var tcs = new TaskCompletionSource();
+    var tcs = new TaskCompletionSource<bool>();
 
     EventHandler<ModalityStateChangedEventArgs> handler = null;
     handler = (sender, e) => {
       if (e.NewState != ModalityState.Connected) return;
       if (!((AVModality)sender).CanInvoke(ModalityAction.Connect)) return;
       avModality.ModalityStateChanged -= handler;
-      tcs.TrySetResult();
+      tcs.TrySetResult(true);
     };
 
     await tcs.Task;
@@ -37,13 +37,13 @@ public class Startup
   public async Task WaitToConnect(AVModality avModality)
   {
     System.Console.WriteLine("start-video:WaitToConnect");
-    var tcs = new TaskCompletionSource();
+    var tcs = new TaskCompletionSource<bool>();
 
     EventHandler<ModalityStateChangedEventArgs> handler = null;
     handler = (sender, e) => {
       if (!((AVModality)sender).VideoChannel.CanInvoke(ChannelAction.Start)) return;
       avModality.ModalityStateChanged -= handler;
-      tcs.TrySetResult();
+      tcs.TrySetResult(true);
     };
 
     avModality.ModalityStateChanged += handler;
