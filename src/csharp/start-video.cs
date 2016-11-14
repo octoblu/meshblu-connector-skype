@@ -12,11 +12,13 @@ public class Startup
 {
   public Conversation GetConversation()
   {
+    System.Console.WriteLine("start-video:GetConversation");
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
   }
 
   public Task WaitToConnect()
   {
+    System.Console.WriteLine("start-video:WaitToConnect");
     var conversation = GetConversation();
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
     var tcs = new TaskCompletionSource<bool>();
@@ -35,6 +37,7 @@ public class Startup
 
   public async Task<VideoChannel> GetVideoChannel()
   {
+    System.Console.WriteLine("start-video:GetVideoChannel");
     var conversation = GetConversation();
     if (conversation == null) return null;
 
@@ -49,6 +52,7 @@ public class Startup
 
   private Task waitTillConnected(VideoChannel videoChannel)
   {
+    System.Console.WriteLine("start-video:waitTillConnected");
     var tcs = new TaskCompletionSource<bool>();
 
     videoChannel.StateChanged += (sender, e) => {
@@ -61,6 +65,7 @@ public class Startup
 
   public async Task<object> Invoke(string ignored)
   {
+    System.Console.WriteLine("start-video:Invoke");
     var videoChannel = await GetVideoChannel();
     if (videoChannel == null) return null;
     if (videoChannel.State == ChannelState.Connecting) await waitTillConnected(videoChannel);
