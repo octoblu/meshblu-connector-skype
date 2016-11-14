@@ -36,7 +36,7 @@ public class Startup
   public async Task<VideoChannel> GetVideoChannel()
   {
     var conversation = GetConversation();
-    if (conversation == null) throw new System.InvalidOperationException("Cannot enable video on non-extant conversation");
+    if (conversation == null) return null;
 
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
 
@@ -62,6 +62,7 @@ public class Startup
   public async Task<object> Invoke(string ignored)
   {
     var videoChannel = await GetVideoChannel();
+    if (videoChannel == null) return null;
     if (videoChannel.State == ChannelState.Connecting) await waitTillConnected(videoChannel);
     if (videoChannel.State == ChannelState.Send) return null;
     if (videoChannel.State == ChannelState.SendReceive) return null;
