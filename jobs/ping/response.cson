@@ -1,0 +1,11 @@
+title: 'Ping'
+type: 'object'
+properties:
+  data:
+    type: 'object'
+    properties:
+      pong:
+        type: 'string'
+    required: [
+      'pong'
+    ]
