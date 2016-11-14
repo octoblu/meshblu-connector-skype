@@ -48,7 +48,7 @@ public class Startup
     }
 
 
-    conversationWindow.ShowContent();
+    // conversationWindow.ShowContent();
     conversationWindow.ShowFullScreen(0);
     return conversationWindow.Conversation.Properties[ConversationProperty.Id].ToString();
   }
