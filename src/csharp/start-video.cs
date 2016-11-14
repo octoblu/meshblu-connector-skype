@@ -68,12 +68,18 @@ public class Startup
   {
     System.Console.WriteLine("start-video:Invoke");
     var videoChannel = await GetVideoChannel();
+    System.Console.WriteLine("start-video:gotVideo");
     if (videoChannel == null) return null;
+    System.Console.WriteLine("start-video:it wasn't null");
     if (videoChannel.State == ChannelState.Connecting) await waitTillConnected(videoChannel);
+    System.Console.WriteLine("start-video:now I'm connected");
     if (videoChannel.State == ChannelState.Send) return null;
+    System.Console.WriteLine("start-video:wasn't sending");
     if (videoChannel.State == ChannelState.SendReceive) return null;
+    System.Console.WriteLine("start-video:wasn't sending and receiving");
 
     await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
+    System.Console.WriteLine("start-video:video has started");
     return null;
   }
 }
