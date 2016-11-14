@@ -31,7 +31,8 @@ public class Startup
     };
 
     avModality.ModalityStateChanged += handler;
-    return await tcs.Task;
+    await tcs.Task;
+    return;
   }
 
   public async Task<VideoChannel> GetVideoChannel()
