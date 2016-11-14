@@ -16,18 +16,34 @@ public class Startup
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
   }
 
-  public async Task WaitToConnect(Conversation conversation)
+  private async Task waitTillAVModalityIsConnected(AVModality avModality)
   {
-    System.Console.WriteLine("start-video:WaitToConnect");
-    var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
-    var tcs = new TaskCompletionSource<bool>();
+    System.Console.WriteLine("start-video:waitTillAVModalityIsConnected");
+    var tcs = new TaskCompletionSource();
 
     EventHandler<ModalityStateChangedEventArgs> handler = null;
     handler = (sender, e) => {
       if (e.NewState != ModalityState.Connected) return;
+      if (!((AVModality)sender).CanInvoke(ModalityAction.Connect)) return;
+      avModality.ModalityStateChanged -= handler;
+      tcs.TrySetResult();
+    };
+
+    await tcs.Task;
+    await Task.Factory.FromAsync(avModality.BeginConnect, avModality.EndConnect, null);
+    return;
+  }
+
+  public async Task WaitToConnect(AVModality avModality)
+  {
+    System.Console.WriteLine("start-video:WaitToConnect");
+    var tcs = new TaskCompletionSource();
+
+    EventHandler<ModalityStateChangedEventArgs> handler = null;
+    handler = (sender, e) => {
       if (!((AVModality)sender).VideoChannel.CanInvoke(ChannelAction.Start)) return;
       avModality.ModalityStateChanged -= handler;
-      tcs.TrySetResult(true);
+      tcs.TrySetResult();
     };
 
     avModality.ModalityStateChanged += handler;
@@ -44,8 +60,10 @@ public class Startup
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
     if (avModality == null) throw new System.InvalidOperationException("Cannot start video if avModality is null");
 
+    await waitTillAVModalityIsConnected(avModality);
+
     if (avModality.State != ModalityState.Connected) {
-      await WaitToConnect(conversation);
+      await WaitToConnect(avModality);
     }
 
     return avModality.VideoChannel;
