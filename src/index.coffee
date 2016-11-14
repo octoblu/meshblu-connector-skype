@@ -3,10 +3,12 @@ async          = require 'async'
 _              = require 'lodash'
 debug           = require('debug')('meshblu-connector-skype:index')
 
+ONE_MINUTE = 60 * 10000
+
 class Connector extends EventEmitter
   constructor: ({@Lync}) ->
     @Lync ?= require './lync-manager'
-    @worker = async.queue async.timeout(@_handleDesiredState, 10000), 1
+    @worker = async.queue async.timeout(@_handleDesiredState, ONE_MINUTE), 1
 
   start: (device, callback) =>
     @onConfig device, (error) =>
