@@ -65,7 +65,7 @@ public class Startup
     if (videoChannel.State == ChannelState.Connecting) await waitTillConnected(videoChannel);
     if (videoChannel.State != ChannelState.Receive && videoChannel.State != ChannelState.SendReceive) return null;
 
-    videoChannel.BeginStop(null, null);
+    await Task.Factory.FromAsync(videoChannel.BeginStop, videoChannel.EndStop, null);
     return null;
   }
 }

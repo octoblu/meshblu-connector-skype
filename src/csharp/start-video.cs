@@ -67,7 +67,7 @@ public class Startup
     if (videoChannel.State == ChannelState.Send) return null;
     if (videoChannel.State == ChannelState.SendReceive) return null;
 
-    videoChannel.BeginStart(null, null);
+    await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
     return null;
   }
 }
