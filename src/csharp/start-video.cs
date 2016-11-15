@@ -23,7 +23,6 @@ public class Startup
 
     EventHandler<ModalityStateChangedEventArgs> handler = null;
     handler = (sender, e) => {
-      if (e.NewState != ModalityState.Connected) return;
       if (!((AVModality)sender).CanInvoke(ModalityAction.Connect)) return;
       avModality.ModalityStateChanged -= handler;
       tcs.TrySetResult(true);
