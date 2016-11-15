@@ -52,6 +52,7 @@ class Connector extends EventEmitter
           @worker.kill()
           @_lastJob = undefined
           @emit 'error', error if error?
+          @emit 'update', favoriteInteger: 1
 
       @_emitUpdate _.defaults({state}, update), callback
 
