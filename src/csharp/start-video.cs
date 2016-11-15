@@ -18,6 +18,8 @@ public class Startup
 
   private async Task ConnectAVModality(AVModality avModality)
   {
+    if (avModality.State != ModalityState.Disconnected) return;
+
     System.Console.WriteLine("start-video:waitTillAVModalityIsConnected");
     var tcs = new TaskCompletionSource<bool>();
 
@@ -27,9 +29,12 @@ public class Startup
       avModality.ActionAvailabilityChanged -= handler;
       tcs.TrySetResult(true);
     };
-    avModality.ActionAvailabilityChanged += handler;
 
-    await tcs.Task;
+    if (!avModality.CanInvoke(ModalityAction.Connect)) {
+      avModality.ActionAvailabilityChanged += handler;
+      await tcs.Task;
+    }
+
     await Task.Factory.FromAsync(avModality.BeginConnect, avModality.EndConnect, null);
     return;
   }
@@ -37,6 +42,8 @@ public class Startup
   public async Task WaitTillCanStartVideoChannel(VideoChannel videoChannel)
   {
     System.Console.WriteLine("start-video:WaitTillCanStartVideoChannel");
+    if (videoChannel.CanInvoke(ChannelAction.Start)) return;
+
     var tcs = new TaskCompletionSource<bool>();
 
     EventHandler<ChannelActionAvailabilityEventArgs> handler = null;
@@ -60,10 +67,7 @@ public class Startup
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
     if (avModality == null) throw new System.InvalidOperationException("Cannot start video if avModality is null");
 
-    if (avModality.State == ModalityState.Disconnected) {
-      await ConnectAVModality(avModality);
-    }
-
+    await ConnectAVModality(avModality);
     await WaitTillCanStartVideoChannel(avModality.VideoChannel);
 
     return avModality.VideoChannel;
