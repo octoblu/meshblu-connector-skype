@@ -31,7 +31,9 @@ class Connector extends EventEmitter
       @_lastJob = desiredState
 
       @worker.push desiredState, (error) =>
-        @_lastJob = null if _.isEqual desiredState, @_lastJob
+        setTimeout =>
+          @_lastJob = null if _.isEqual desiredState, @_lastJob
+        , 5000
 
         if error?
           console.error error.stack
