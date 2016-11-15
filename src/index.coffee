@@ -49,6 +49,7 @@ class Connector extends EventEmitter
 
       if _.size(@autoKillStack) > 3
         @Lync.stopMeetings null, (error) =>
+          @worker.kill()
           @emit 'error', error if error?
 
       @_emitUpdate _.defaults({state}, update), callback
