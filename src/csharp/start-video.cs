@@ -48,8 +48,11 @@ public class Startup
 
     EventHandler<ChannelActionAvailabilityEventArgs> handler = null;
     handler = (sender, e) => {
+      if (e.Action != ChannelAction.Start) return;
+      if (!e.IsAvailable) return;
       if (!((VideoChannel)sender).CanInvoke(ChannelAction.Start)) return;
       videoChannel.ActionAvailabilityChanged -= handler;
+      System.Threading.Thread.Sleep(2000);
       tcs.TrySetResult(true);
     };
 
@@ -89,9 +92,7 @@ public class Startup
   public async Task<object> Invoke(string ignored)
   {
     System.Console.WriteLine("start-video:Invoke");
-    System.Threading.Thread.Sleep(2000);
     var videoChannel = await GetVideoChannel();
-    System.Threading.Thread.Sleep(2000);
     System.Console.WriteLine("start-video:gotVideo");
     if (videoChannel == null) return null;
     System.Console.WriteLine("start-video:it wasn't null");
