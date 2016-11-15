@@ -47,6 +47,10 @@ getState = edge.func
   source: path.join __dirname, 'csharp/get-state.cs'
   references: references
 
+emitEvents = edge.func
+  source: path.join __dirname, 'csharp/emit-events.cs'
+  references: references
+
 module.exports = {
   createMeeting: createMeeting
   joinMeeting: joinMeeting
@@ -57,4 +61,5 @@ module.exports = {
   unmute: unmute
   getConferenceUri: getConferenceUri
   getState: getState
+  emitEvents: emitEvents
 }
