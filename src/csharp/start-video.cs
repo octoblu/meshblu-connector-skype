@@ -21,10 +21,10 @@ public class Startup
     System.Console.WriteLine("start-video:waitTillAVModalityIsConnected");
     var tcs = new TaskCompletionSource<bool>();
 
-    EventHandler<ModalityStateChangedEventArgs> handler = null;
+    EventHandler<ActionAvailabilityChangedEventArgs> handler = null;
     handler = (sender, e) => {
       if (!((AVModality)sender).CanInvoke(ModalityAction.Connect)) return;
-      avModality.ModalityStateChanged -= handler;
+      avModality.ActionAvailabilityChanged -= handler;
       tcs.TrySetResult(true);
     };
 
