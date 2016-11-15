@@ -100,8 +100,10 @@ class Connector extends EventEmitter
     debug '_handleVideoEnabled'
     return callback() unless _.has desiredState, 'videoEnabled'
 
-    return @Lync.stopVideo null, callback unless desiredState.videoEnabled
-    return @Lync.startVideo null, callback
+    setTimeout =>
+      return @Lync.stopVideo null, callback unless desiredState.videoEnabled
+      return @Lync.startVideo null, callback
+    , 2000 # wait 2s. Just cause
 
 
 module.exports = Connector

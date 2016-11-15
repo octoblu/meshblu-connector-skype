@@ -1,10 +1,13 @@
 {afterEach, beforeEach, describe, it} = global
 {expect} = require 'chai'
 sinon = require 'sinon'
+_ = require 'lodash'
 
 Connector = require '../'
 
 describe 'Connector', ->
+  @timeout 3000
+
   beforeEach ->
     @Lync =
       createMeeting:    sinon.stub()
@@ -85,6 +88,7 @@ describe 'Connector', ->
 
     describe 'Enable Audio', ->
       beforeEach (done) ->
+        done = _.once done
         @sut.on 'update', (@update) => done()
         @Lync.unmute.yields()
         @Lync.getState.yields null, {
@@ -112,6 +116,7 @@ describe 'Connector', ->
 
     describe 'Disable Audio', ->
       beforeEach (done) ->
+        done = _.once done
         @sut.on 'update', (@update) => done()
         @Lync.mute.yields()
         @Lync.getState.yields null, {
@@ -139,6 +144,7 @@ describe 'Connector', ->
 
     describe 'Enable Video', ->
       beforeEach (done) ->
+        done = _.once done
         @sut.on 'update', (@update) => done()
         @Lync.startVideo.yields()
         @Lync.getState.yields null, {
