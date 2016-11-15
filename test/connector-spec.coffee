@@ -6,7 +6,7 @@ _ = require 'lodash'
 Connector = require '../'
 
 describe 'Connector', ->
-  @timeout 3000
+  @timeout 5000
 
   beforeEach ->
     @Lync =

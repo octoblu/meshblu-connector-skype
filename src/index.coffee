@@ -104,8 +104,18 @@ class Connector extends EventEmitter
 
     setTimeout =>
       return @Lync.stopVideo null, callback unless desiredState.videoEnabled
-      return @Lync.startVideo null, callback
+      return @_startVideo callback
     , 2000 # wait 2s. Just cause
+
+  _reverseDelay: (timeout, callback) =>
+    setTimeout callback, timeout
+
+  _startVideo: (callback) =>
+    @Lync.startVideo null, =>
+      @_reverseDelay 1000, =>
+        @Lync.getState null, (error, state) =>
+          return @_startVideo callback if state.videoState == 'None'
+          return callback()
 
 
 module.exports = Connector
