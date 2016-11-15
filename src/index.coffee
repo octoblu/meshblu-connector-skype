@@ -12,6 +12,7 @@ class Connector extends EventEmitter
     @worker = async.queue async.timeout(@_handleDesiredState, TWENTY_SECONDS), 1
 
   start: (device, callback) =>
+    { @uuid } = device
     @onConfig device, (error) =>
       return callback error if error
       setInterval @_refreshCurrentState, 5000
@@ -21,6 +22,7 @@ class Connector extends EventEmitter
     return callback()
 
   onConfig: (device, callback=->) =>
+    return callback unless _.isEqual @uuid, device.uuid
     @_computeState (error, state) =>
       return callback error if error
       return @_emitNoClient {state}, callback unless state.hasClient
@@ -45,9 +47,10 @@ class Connector extends EventEmitter
       else
         @autoKillStack.length = 0
 
-      if _.size(@autoKillStack) > 3
+      if _.size(@autoKillStack) > 4
         @Lync.stopMeetings null, (error) =>
           @worker.kill()
+          @_lastJob = undefined
           @emit 'error', error if error?
 
       @_emitUpdate _.defaults({state}, update), callback
