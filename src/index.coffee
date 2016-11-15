@@ -26,9 +26,9 @@ class Connector extends EventEmitter
       return @_emitNoClient {state}, callback unless state.hasClient
 
       desiredState = _.get device, 'desiredState', {}
-      return callback() if _.isEmpty desiredState
       return callback() if _.isEqual @_lastJob, desiredState
       @_lastJob = desiredState
+      return callback() if _.isEmpty desiredState
 
       @worker.push desiredState, (error) =>
         if error?
