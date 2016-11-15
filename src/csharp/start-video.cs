@@ -90,6 +90,7 @@ public class Startup
   {
     System.Console.WriteLine("start-video:Invoke");
     var videoChannel = await GetVideoChannel();
+    System.Threading.Thread.Sleep(2000);
     System.Console.WriteLine("start-video:gotVideo");
     if (videoChannel == null) return null;
     System.Console.WriteLine("start-video:it wasn't null");
