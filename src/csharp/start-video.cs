@@ -101,7 +101,7 @@ public class Startup
     System.Console.WriteLine("start-video:wasn't sending and receiving");
 
     System.Console.WriteLine("start-video:am currently" + videoChannel.State);
-    await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
+    videoChannel.BeginStart(null, null);
     System.Console.WriteLine("start-video:video has started");
     return null;
   }

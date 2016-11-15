@@ -11,12 +11,12 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-  public Task<ConversationWindow> StartConversation(string joinUrl, long parentHwnd)
+  public async Task<ConversationWindow> StartConversation(string joinUrl, long parentHwnd)
   {
     System.Console.WriteLine("join-meeting:StartConversation");
     Automation automation = LyncClient.GetAutomation();
 
-    return Task<ConversationWindow>.Factory.FromAsync(
+    return await Task<ConversationWindow>.Factory.FromAsync(
       automation.BeginStartConversation,
       automation.EndStartConversation,
       joinUrl, parentHwnd, null // args passed to automation.BeginStartConversation
