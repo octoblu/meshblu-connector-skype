@@ -89,6 +89,7 @@ public class Startup
   public async Task<object> Invoke(string ignored)
   {
     System.Console.WriteLine("start-video:Invoke");
+    System.Threading.Thread.Sleep(2000);
     var videoChannel = await GetVideoChannel();
     System.Threading.Thread.Sleep(2000);
     System.Console.WriteLine("start-video:gotVideo");

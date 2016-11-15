@@ -7,6 +7,7 @@ ONE_MINUTE = 60 * 10000
 
 class Connector extends EventEmitter
   constructor: ({@Lync}) ->
+    @autoKillStack = []
     @Lync ?= require './lync-manager'
     @worker = async.queue async.timeout(@_handleDesiredState, ONE_MINUTE), 1
 
@@ -41,6 +42,15 @@ class Connector extends EventEmitter
   _refreshCurrentState: (update=null, callback=->) =>
     @_computeState (error, state) =>
       return callback error if error?
+      if state.videoState == 'Connecting'
+        @autoKillStack.push(state.videoState)
+      else
+        @autoKillStack.length = 0
+
+      if _.size(@autoKillStack) > 3
+        @Lync.stopMeetings null, (error) =>
+          @emit 'error', error if error?
+
       @_emitUpdate _.defaults({state}, update), callback
 
   _emitNoClient: ({state}, callback) =>
