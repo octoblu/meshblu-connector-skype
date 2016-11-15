@@ -114,7 +114,7 @@ class Connector extends EventEmitter
     @Lync.startVideo null, =>
       @_reverseDelay 1000, =>
         @Lync.getState null, (error, state) =>
-          return @_startVideo callback if state.videoState == 'None'
+          return @_startVideo callback unless state.videoEnabled
           return callback()
 
 
