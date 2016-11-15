@@ -3,13 +3,13 @@ async          = require 'async'
 _              = require 'lodash'
 debug           = require('debug')('meshblu-connector-skype:index')
 
-ONE_MINUTE = 60 * 10000
+TWENTY_SECONDS = 20 * 1000
 
 class Connector extends EventEmitter
   constructor: ({@Lync}) ->
     @autoKillStack = []
     @Lync ?= require './lync-manager'
-    @worker = async.queue async.timeout(@_handleDesiredState, ONE_MINUTE), 1
+    @worker = async.queue async.timeout(@_handleDesiredState, TWENTY_SECONDS), 1
 
   start: (device, callback) =>
     @onConfig device, (error) =>
@@ -31,10 +31,6 @@ class Connector extends EventEmitter
       @_lastJob = desiredState
 
       @worker.push desiredState, (error) =>
-        setTimeout =>
-          @_lastJob = null if _.isEqual desiredState, @_lastJob
-        , 5000
-
         if error?
           console.error error.stack
           return callback error
