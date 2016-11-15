@@ -27,25 +27,26 @@ public class Startup
       avModality.ActionAvailabilityChanged -= handler;
       tcs.TrySetResult(true);
     };
+    avModality.ActionAvailabilityChanged += handler;
 
     await tcs.Task;
     await Task.Factory.FromAsync(avModality.BeginConnect, avModality.EndConnect, null);
     return;
   }
 
-  public async Task WaitTillCanStartVideoChannel(AVModality avModality)
+  public async Task WaitTillCanStartVideoChannel(VideoChannel videoChannel)
   {
     System.Console.WriteLine("start-video:WaitTillCanStartVideoChannel");
     var tcs = new TaskCompletionSource<bool>();
 
     EventHandler<ChannelActionAvailabilityEventArgs> handler = null;
     handler = (sender, e) => {
-      if (!((AVModality)sender).VideoChannel.CanInvoke(ChannelAction.Start)) return;
-      avModality.ActionAvailabilityChanged -= handler;
+      if (!((VideoChannel)sender).CanInvoke(ChannelAction.Start)) return;
+      videoChannel.ActionAvailabilityChanged -= handler;
       tcs.TrySetResult(true);
     };
 
-    avModality.ActionAvailabilityChanged += handler;
+    videoChannel.ActionAvailabilityChanged += handler;
     await tcs.Task;
     return;
   }
@@ -63,7 +64,7 @@ public class Startup
       await ConnectAVModality(avModality);
     }
 
-    await WaitTillCanStartVideoChannel(avModality);
+    await WaitTillCanStartVideoChannel(avModality.VideoChannel);
 
     return avModality.VideoChannel;
   }
