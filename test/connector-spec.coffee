@@ -19,6 +19,7 @@ describe 'Connector', ->
       stopMeetings:     sinon.stub()
       mute:             sinon.stub()
       unmute:           sinon.stub()
+      emitEvents:       sinon.stub()
     @sut = new Connector {@Lync}
 
   afterEach (done) ->
