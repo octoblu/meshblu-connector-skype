@@ -12,6 +12,8 @@ public class Startup
 {
 
   public Task<object> BindToVideoChannelChanges(Func<object, Task<object>> callback) {
+    System.Console.WriteLine("emit-events:BindToVideoChannelChanges");
+
     var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
     var videoChannel = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]).VideoChannel;
 
@@ -25,6 +27,8 @@ public class Startup
   }
 
   public Task<object> BindToAvModalityChanges(Func<object, Task<object>> callback) {
+    System.Console.WriteLine("emit-events:BindToAvModalityChanges");
+
     var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
     var videoChannelBound = false;
