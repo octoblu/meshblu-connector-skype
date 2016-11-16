@@ -13,7 +13,7 @@ class Connector extends EventEmitter
 
   start: (device, callback) =>
     @Lync.emitEvents =>
-      console.log "Got event", arguments
+      debug arguments
 
     { @uuid } = device
     @onConfig device, (error) =>
