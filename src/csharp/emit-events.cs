@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.Lync.Model;
 using Microsoft.Lync.Model.Conversation;
 using Microsoft.Lync.Model.Conversation.AudioVideo;
@@ -10,7 +11,6 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
-
   public Task<object> BindToVideoChannelChanges(Func<object, Task<object>> callback) {
     System.Console.WriteLine("emit-events:BindToVideoChannelChanges");
 
@@ -18,14 +18,14 @@ public class Startup
     var videoChannel = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]).VideoChannel;
 
     videoChannel.ActionAvailabilityChanged += (sender, e) => {
-      System.Console.WriteLine("emit-events:videoChannel:ActionAvailabilityChanged");
-      callback("videoChannel:ActionAvailabilityChanged:"+e.Action);
+      System.Console.WriteLine("emit-events:videoChannel:ActionAvailabilityChanged");      
+      callback(new KeyValuePair<String, Object>("VideoChannel:ActionAvailabilityChanged", e));
       System.Console.WriteLine("emit-events:videoChannel:ActionAvailabilityChanged after callback");
     };
 
     videoChannel.StateChanged += (sender, e) => {
       System.Console.WriteLine("emit-events:videoChannel:StateChanged");
-      callback("videoChannel:StateChanged:"+e.NewState);
+      callback(new KeyValuePair<String, Object>("VideoChannel:StateChanged", e));
       System.Console.WriteLine("emit-events:videoChannel:StateChanged after callback");
     };
 
@@ -41,7 +41,7 @@ public class Startup
 
     avModality.ActionAvailabilityChanged += (sender, e) => {
       System.Console.WriteLine("emit-events:avModality:ActionAvailabilityChanged");
-      callback("avModality:ActionAvailabilityChanged:"+e.Action);
+      callback(new KeyValuePair<String, Object>("AvModality:ActionAvailabilityChanged:", e));
       System.Console.WriteLine("emit-events:avModality:ActionAvailabilityChanged after callback");
 
       if ( !videoChannelBound && ((AVModality)sender).CanInvoke(ModalityAction.Connect) ) {
@@ -52,7 +52,7 @@ public class Startup
 
     avModality.ModalityStateChanged += (sender, e) => {
       System.Console.WriteLine("emit-events:avModality:ModalityStateChanged");
-      callback("avModality:ModalityStateChanged:"+e.NewState);
+      callback(new KeyValuePair<String, Object>("AvModality:ModalityStateChanged:", e));
       System.Console.WriteLine("emit-events:avModality:ModalityStateChanged after callback");
     };
 
@@ -66,7 +66,7 @@ public class Startup
 
     conversation.StateChanged += (sender, e) => {
       System.Console.WriteLine("emit-events:conversation:StateChanged");
-      callback("conversation:StateChanged:"+e.NewState);
+      callback(new KeyValuePair<String, Object>("Conversation:StateChanged", e));
       System.Console.WriteLine("emit-events:conversation:StateChanged after callback");
     };
 
@@ -80,7 +80,7 @@ public class Startup
 
     ConversationManager.ConversationAdded += (sender, e) => {
       System.Console.WriteLine("emit-events:ConversationAdded");
-      callback("ConversationManager:ConversationAdded");
+      callback(new KeyValuePair<String, Object>("ConversationManager:ConversationAdded", e));
       System.Console.WriteLine("emit-events:ConversationAdded after callback");
 
       BindToConversationChanges(callback);
@@ -89,7 +89,7 @@ public class Startup
 
     ConversationManager.ConversationRemoved += (sender, e) => {
       System.Console.WriteLine("emit-events:ConversationRemoved");
-      callback("ConversationManager:ConversationRemoved");
+      callback(new KeyValuePair<String, Object>("ConversationManager:ConversationRemoved", e));
       System.Console.WriteLine("emit-events:ConversationRemoved after callback");
     };
 
@@ -99,7 +99,6 @@ public class Startup
   public async Task<object> Invoke(Func<object, Task<object>> callback)
   {
     System.Console.WriteLine("emit-events:Invoke");
-
     BindToConversationManagerChanges(callback);
     return null;
   }
