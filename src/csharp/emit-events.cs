@@ -10,6 +10,19 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
+  public Task<object> BindToAvModalityChanges(Func<object, Task<object>> callback) {
+    var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
+    var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+
+    avModality.ActionAvailabilityChanged += (sender, e) => {
+      System.Console.WriteLine("emit-events:avModality:ActionAvailabilityChanged");
+      callback(e.Action);
+      System.Console.WriteLine("emit-events:avModality:ActionAvailabilityChanged after callback");
+    };
+
+    return null;
+  }
+
   public Task<object> BindToConversationChanges(Func<object, Task<object>> callback) {
     System.Console.WriteLine("emit-events:BindToConversationChanges");
 
@@ -20,15 +33,7 @@ public class Startup
       callback("Conversation:Added");
       System.Console.WriteLine("emit-events:ConversationAdded after callback");
 
-      var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
-      var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
-
-      avModality.ActionAvailabilityChanged += (sender2, e2) => {
-        System.Console.WriteLine("emit-events:avModality:ActionAvailabilityChanged");
-        callback(e2.Action);
-        System.Console.WriteLine("emit-events:avModality:ActionAvailabilityChanged after callback");
-      };
-
+      BindToAvModalityChanges(callback);
     };
 
     ConversationManager.ConversationRemoved += (sender, e) => {
