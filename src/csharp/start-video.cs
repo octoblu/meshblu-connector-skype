@@ -39,6 +39,25 @@ public class Startup
     return;
   }
 
+  private async Task AVModalityConnected(AVModality avModality)
+  {
+    if (avModality.State == ModalityState.Connected) return;
+
+    System.Console.WriteLine("start-video:waitAVModalityConnected");
+    var tcs = new TaskCompletionSource<bool>();
+
+    EventHandler<ModalityStateChangedEventArgs> handler = null;
+    handler = (sender, e) => {
+      if (e.NewState != ModalityState.Connected) return;
+      avModality.ModalityStateChanged -= handler;
+      tcs.TrySetResult(true);
+    };
+
+    avModality.ModalityStateChanged += handler;
+    await tcs.Task;
+    return;
+  }
+
   public async Task WaitTillCanStartVideoChannel(VideoChannel videoChannel)
   {
     System.Console.WriteLine("start-video:WaitTillCanStartVideoChannel");
@@ -71,6 +90,7 @@ public class Startup
     if (avModality == null) throw new System.InvalidOperationException("Cannot start video if avModality is null");
 
     await ConnectAVModality(avModality);
+    await AVModalityConnected(avModality);
     await WaitTillCanStartVideoChannel(avModality.VideoChannel);
 
     return avModality.VideoChannel;
