@@ -23,6 +23,12 @@ public class Startup
       System.Console.WriteLine("emit-events:videoChannel:ActionAvailabilityChanged after callback");
     };
 
+    videoChannel.StateChanged += (sender, e) => {
+      System.Console.WriteLine("emit-events:videoChannel:StateChanged");
+      callback("videoChannel:StateChanged:"+e.NewState);
+      System.Console.WriteLine("emit-events:videoChannel:StateChanged after callback");
+    };
+
     return null;
   }
 
@@ -44,11 +50,31 @@ public class Startup
       }
     };
 
+    avModality.ModalityStateChanged += (sender, e) => {
+      System.Console.WriteLine("emit-events:avModality:ModalityStateChanged");
+      callback("avModality:ModalityStateChanged:"+e.NewState);
+      System.Console.WriteLine("emit-events:avModality:ModalityStateChanged after callback");
+    };
+
     return null;
   }
 
   public Task<object> BindToConversationChanges(Func<object, Task<object>> callback) {
     System.Console.WriteLine("emit-events:BindToConversationChanges");
+
+    var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
+
+    conversation.StateChanged += (sender, e) => {
+      System.Console.WriteLine("emit-events:conversation:StateChanged");
+      callback("conversation:StateChanged:"+e.NewState);
+      System.Console.WriteLine("emit-events:conversation:StateChanged after callback");
+    };
+
+    return null;
+  }
+
+  public Task<object> BindToConversationManagerChanges(Func<object, Task<object>> callback) {
+    System.Console.WriteLine("emit-events:BindToConversationManagerChanges");
 
     var ConversationManager = LyncClient.GetClient().ConversationManager;
 
@@ -57,6 +83,7 @@ public class Startup
       callback("ConversationManager:ConversationAdded");
       System.Console.WriteLine("emit-events:ConversationAdded after callback");
 
+      BindToConversationChanges(callback);
       BindToAvModalityChanges(callback);
     };
 
@@ -67,14 +94,13 @@ public class Startup
     };
 
     return null;
-
   }
 
   public async Task<object> Invoke(Func<object, Task<object>> callback)
   {
     System.Console.WriteLine("emit-events:Invoke");
 
-    BindToConversationChanges(callback);
+    BindToConversationManagerChanges(callback);
     return null;
   }
 
