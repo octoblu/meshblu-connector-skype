@@ -12,8 +12,8 @@ class Connector extends EventEmitter
     @worker = async.queue async.timeout(@_handleDesiredState, TWENTY_SECONDS), 1
 
   start: (device, callback) =>
-    @Lync.emitEvents =>
-      console.log "Got event", arguments
+    # @Lync.emitEvents =>
+    #   console.log "Got event", arguments
 
     { @uuid } = device
     @onConfig device, (error) =>
