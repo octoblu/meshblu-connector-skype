@@ -71,7 +71,7 @@ public class Startup
       if (!e.IsAvailable) return;
       if (!((VideoChannel)sender).CanInvoke(ChannelAction.Start)) return;
       videoChannel.ActionAvailabilityChanged -= handler;
-      System.Threading.Thread.Sleep(2000);
+      // System.Threading.Thread.Sleep(2000);
       tcs.TrySetResult(true);
     };
 
@@ -102,8 +102,9 @@ public class Startup
     var tcs = new TaskCompletionSource<bool>();
 
     videoChannel.StateChanged += (sender, e) => {
-      if (e.NewState == ChannelState.Connecting) return;
-      tcs.TrySetResult(true);
+      if (e.NewState == ChannelState.Send || e.NewState == ChannelState.Receive || e.NewState == ChannelState.SendReceive) {
+        tcs.TrySetResult(true);
+      }
     };
 
     return tcs.Task;
@@ -115,17 +116,19 @@ public class Startup
     var videoChannel = await GetVideoChannel();
     System.Console.WriteLine("start-video:gotVideo");
     if (videoChannel == null) return null;
-    System.Console.WriteLine("start-video:it wasn't null");
-    if (videoChannel.State == ChannelState.Connecting) await waitTillConnected(videoChannel);
-    System.Console.WriteLine("start-video:now I'm connected");
-    if (videoChannel.State == ChannelState.Send) return null;
-    System.Console.WriteLine("start-video:wasn't sending");
-    if (videoChannel.State == ChannelState.SendReceive) return null;
-    System.Console.WriteLine("start-video:wasn't sending and receiving");
-
-    System.Console.WriteLine("start-video:am currently" + videoChannel.State);
     videoChannel.BeginStart(null, null);
-    System.Console.WriteLine("start-video:video has started");
+    await waitTillConnected(videoChannel);
+
+    // System.Console.WriteLine("start-video:it wasn't null");
+    // if (videoChannel.State == ChannelState.Connecting) await waitTillConnected(videoChannel);
+    // System.Console.WriteLine("start-video:now I'm connected");
+    // if (videoChannel.State == ChannelState.Send) return null;
+    // System.Console.WriteLine("start-video:wasn't sending");
+    // if (videoChannel.State == ChannelState.SendReceive) return null;
+    // System.Console.WriteLine("start-video:wasn't sending and receiving");
+    //
+    // System.Console.WriteLine("start-video:am currently" + videoChannel.State);
+    // System.Console.WriteLine("start-video:video has started");
     return null;
   }
 }
