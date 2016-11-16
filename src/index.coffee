@@ -71,7 +71,7 @@ class Connector extends EventEmitter
 
   _handleDesiredState: (desiredState, callback) =>
     async.series [
-      async.apply(@_handleMeeting,   desiredState)
+      async.apply(@_handleMeeting,      desiredState)
       async.apply(@_handleAudioEnabled, desiredState)
       async.apply(@_handleVideoEnabled, desiredState)
     ], callback
@@ -105,10 +105,20 @@ class Connector extends EventEmitter
     debug '_handleVideoEnabled'
     return callback() unless _.has desiredState, 'videoEnabled'
 
-    setTimeout =>
-      return @Lync.stopVideo null, callback unless desiredState.videoEnabled
-      return @Lync.startVideo null, callback
-    , 2000 # wait 2s. Just cause
+    return @Lync.stopVideo null, callback unless desiredState.videoEnabled
+    return @_startVideo callback
+    # setTimeout =>
+    # , 2000 # wait 2s. Just cause
+
+  _reverseDelay: (timeout, callback) =>
+    setTimeout callback, timeout
+
+  _startVideo: (callback) =>
+    @Lync.startVideo null, =>
+      @_reverseDelay 1000, =>
+        @Lync.getState null, (error, state) =>
+          return @_startVideo callback unless state.videoEnabled
+          return callback()
 
 
 module.exports = Connector
