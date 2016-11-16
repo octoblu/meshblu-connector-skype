@@ -10,14 +10,34 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class Startup
 {
+
+  public Task<object> BindToVideoChannelChanges(Func<object, Task<object>> callback) {
+    var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
+    var videoChannel = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]).VideoChannel;
+
+    videoChannel.ActionAvailabilityChanged += (sender, e) => {
+      System.Console.WriteLine("emit-events:videoChannel:ActionAvailabilityChanged");
+      callback("videoChannel:ActionAvailabilityChanged:"+e.Action);
+      System.Console.WriteLine("emit-events:videoChannel:ActionAvailabilityChanged after callback");
+    };
+
+    return null;
+  }
+
   public Task<object> BindToAvModalityChanges(Func<object, Task<object>> callback) {
     var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
+    var videoChannelBound = false;
 
     avModality.ActionAvailabilityChanged += (sender, e) => {
       System.Console.WriteLine("emit-events:avModality:ActionAvailabilityChanged");
-      callback(e.Action);
+      callback("avModality:ActionAvailabilityChanged:"+e.Action);
       System.Console.WriteLine("emit-events:avModality:ActionAvailabilityChanged after callback");
+
+      if ( !videoChannelBound && ((AVModality)sender).CanInvoke(ModalityAction.Connect) ) {
+        videoChannelBound = true;
+        BindToVideoChannelChanges(callback);
+      }
     };
 
     return null;
@@ -30,7 +50,7 @@ public class Startup
 
     ConversationManager.ConversationAdded += (sender, e) => {
       System.Console.WriteLine("emit-events:ConversationAdded");
-      callback("Conversation:Added");
+      callback("ConversationManager:ConversationAdded");
       System.Console.WriteLine("emit-events:ConversationAdded after callback");
 
       BindToAvModalityChanges(callback);
@@ -38,7 +58,7 @@ public class Startup
 
     ConversationManager.ConversationRemoved += (sender, e) => {
       System.Console.WriteLine("emit-events:ConversationRemoved");
-      callback("Conversation:Removed");
+      callback("ConversationManager:ConversationRemoved");
       System.Console.WriteLine("emit-events:ConversationRemoved after callback");
     };
 
