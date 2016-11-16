@@ -42,6 +42,9 @@ class Connector extends EventEmitter
 
         @_refreshCurrentState desiredState: {}, callback
 
+  updateDesiredState: (desiredState) =>
+    @emit 'update', {desiredState}
+
   _refreshCurrentState: (update=null, callback=->) =>
     @_computeState (error, state) =>
       return callback error if error?

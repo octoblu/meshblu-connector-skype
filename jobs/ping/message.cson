@@ -1,5 +1,0 @@
-title: 'SayHello'
-type: 'object'
-properties:
-  data:
-    type: 'object'
