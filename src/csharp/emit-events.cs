@@ -77,7 +77,7 @@ public class Startup
     ConversationManager.ConversationAdded += (sender, e) => {
       string conversationId = (string) e.Conversation.Properties[ConversationProperty.Id];
       System.Console.WriteLine("ConversationAdded");
-      callback(new ConversationEvent { conversationId= conversationId, eventSource= "ConversationManager", eventType= "ConversationAdded" });
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "ConversationManager", eventType= "ConversationAdded", data= e.Conversation.Properties[ConversationProperty.ConferenceAccessInformation] });
       var listener = new ConversationListener(e.Conversation, callback);
       listener.listen();
     };
