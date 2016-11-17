@@ -115,7 +115,10 @@ class Connector extends EventEmitter
       console.log 'not connected. waiting till next time'
       @lyncEventHandler.once 'change', => @_startVideo callback
 
-    console.log 'going to try to start the video'
+    unless _.get(conversation, 'video.actions.Start') || _.get(conversation, 'video.actions.Resume')
+      console.log "I can't resume or start the video. waiting until next time"
+      @lyncEventHandler.once 'change', => @_startVideo callback
+
     @Lync.startVideo callback
 
 
