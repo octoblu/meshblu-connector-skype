@@ -19,11 +19,6 @@ joinMeeting = edge.func
   source: path.join __dirname, 'csharp/join-meeting.cs'
   references: references
 
-
-connectToVideo = edge.func
-  source: path.join __dirname, 'csharp/connect-to-video.cs'
-  references: references
-
 startVideo = edge.func
   source: path.join __dirname, 'csharp/start-video.cs'
   references: references
@@ -67,5 +62,4 @@ module.exports = {
   getConferenceUri: getConferenceUri
   getState: getState
   emitEvents: emitEvents
-  connectToVideo: connectToVideo
 }

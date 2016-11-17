@@ -5,13 +5,13 @@ class LyncEventHandler extends EventEmitter
     @conversations = {}
 
   handle: ({conversationId, eventSource, eventType, data}) =>
-    console.log {conversationId, eventSource, eventType, data}
     @handleConversationManagerEvent {conversationId, eventType, data} if eventSource == 'ConversationManager'
     @handleConversationEvent {conversationId, eventType, data} if eventSource == 'Conversation'
     @handleVideoChannelEvent {conversationId, eventType, data} if eventSource == 'VideoChannel'
     @handleAVModalityEvent {conversationId, eventType, data} if eventSource == 'AvModality'
-    
-    @emit @conversations
+
+    console.log JSON.stringify(@conversations, null, 2)
+    @emit 'change', @conversations
 
 
   handleConversationEvent: ({conversationId, eventType, data}) =>

@@ -8,9 +8,8 @@ TWENTY_SECONDS = 20 * 1000
 
 class Connector extends EventEmitter
   constructor: ({@Lync}) ->
-    @autoKillStack = []
     @Lync ?= require './lync-manager'
-    @worker = async.queue async.timeout(@_handleDesiredState, TWENTY_SECONDS), 1
+    @worker = async.queue @_handleDesiredState, 1
     @lyncEventHandler = new LyncEventHandler()
 
   start: (device, callback) =>
@@ -25,10 +24,10 @@ class Connector extends EventEmitter
   close: (callback) =>
     return callback()
 
-  onConfig: ({desiredState}, callback=->) =>
+  _onConfig: ({desiredState}, callback=->) =>
     @_handleVideoEnabled desiredState, callback
 
-  _onConfig: (device, callback=->) =>
+  onConfig: (device, callback=->) =>
     return callback() unless _.isEqual @uuid, device.uuid
     @_computeState (error, state) =>
       return callback error if error
@@ -49,18 +48,6 @@ class Connector extends EventEmitter
   _refreshCurrentState: (update=null, callback=->) =>
     @_computeState (error, state) =>
       return callback error if error?
-      if state.videoState == 'Connecting'
-        @autoKillStack.push(state.videoState)
-      else
-        @autoKillStack.length = 0
-
-      if _.size(@autoKillStack) > 4
-        @Lync.stopMeetings null, (error) =>
-          @worker.kill()
-          @_lastJob = undefined
-          @emit 'error', error if error?
-          @emit 'update', favoriteInteger: 1
-
       @_emitUpdate _.defaults({state}, update), callback
 
   _emitNoClient: ({state}, callback) =>
@@ -109,19 +96,27 @@ class Connector extends EventEmitter
     console.log '_handleVideoEnabled', desiredState
     return callback() unless _.has desiredState, 'videoEnabled'
 
-    # return @_stopVideo null, callback unless desiredState.videoEnabled
+    return @Lync.stopVideo null, callback unless desiredState.videoEnabled
     return callback() unless desiredState.videoEnabled
     return @_startVideo callback
 
   _startVideo: (callback) =>
-    console.log JSON.stringify @lyncEventHandler.conversations
+    console.log "trying to _startVideo"
     conversation = _.first _.values @lyncEventHandler.conversations
-    console.log 'conversation', JSON.stringify conversation, null, 2
-    return callback() unless conversation?
+    unless conversation?
+      console.log "You don't have a conversation bro. Giving up"
+      return callback()
     videoState = _.get conversation, 'video.state'
-    return callback() if videoState == 'Send' || videoState == 'Receive' || videoState == 'SendReceive'
-    return @Lync.connectToVideo callback if _.get conversation, 'modality.actions.Connect'
-    @lyncEventHandler.once => _startVideo callback
+    if videoState == 'Send' || videoState == 'SendReceive'
+      console.log "videoState was #{videoState}. We're done!"
+      return callback()
+
+    unless _.get(conversation, 'modality.state') == 'Connected'
+      console.log 'not connected. waiting till next time'
+      @lyncEventHandler.once 'change', => @_startVideo callback
+
+    console.log 'going to try to start the video'
+    @Lync.startVideo callback
 
 
 module.exports = Connector
