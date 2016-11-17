@@ -9,69 +9,83 @@ using Microsoft.Lync.Model.Conversation;
 using Microsoft.Lync.Model.Conversation.AudioVideo;
 using Microsoft.Lync.Model.Extensibility;
 
-public class Startup
-{
-  public Task<object> BindToVideoChannelChanges(Func<object, Task<object>> callback) {
+public class ConversationEvent {
+  public string conversationId;
+  public string eventSource;
+  public string eventType;
+  public object data;
+};
 
-    var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
+public class ConversationListener {
+  Conversation conversation;
+  String conversationId;
+  Func<object, Task<object>> callback;
+
+  public ConversationListener(Conversation conversation, Func<object, Task<object>> callback) {
+    this.conversation = conversation;
+    this.callback = callback;
+    this.conversationId = (string) conversation.Properties[ConversationProperty.Id];
+  }
+
+  public void listen() {
+    BindToConversationChanges();
+    BindToAvModalityChanges();
+  }
+
+  private void BindToVideoChannelChanges() {
     var videoChannel = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]).VideoChannel;
 
     videoChannel.ActionAvailabilityChanged += (sender, e) => {
-      callback(new KeyValuePair<String, Object>("VideoChannel:ActionAvailabilityChanged", e));
+      System.Console.WriteLine("videoChannelActionAvailibilityChanged");
+      callback(new ConversationEvent { conversationId=conversationId, eventSource= "VideoChannel", eventType= "ActionAvailabilityChanged", data= e});
     };
 
     videoChannel.StateChanged += (sender, e) => {
-      callback(new KeyValuePair<String, Object>("VideoChannel:StateChanged", e.NewState));
+      System.Console.WriteLine("videoChannelStateChanged");
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "VideoChannel", eventType= "StateChanged", data= e});
     };
-
-    return null;
   }
 
-  public Task<object> BindToAvModalityChanges(Func<object, Task<object>> callback) {
+  private void BindToConversationChanges() {
+    conversation.StateChanged += (sender, e) => {
+      System.Console.WriteLine("ConversationStateChanged");
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "StateChanged", data= e});
+    };
+  }
 
-    var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
+  private void BindToAvModalityChanges() {
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
     var videoChannelBound = false;
 
     avModality.ActionAvailabilityChanged += (sender, e) => {
-      callback(new KeyValuePair<String, Object>("AvModality:ActionAvailabilityChanged:", e));
-
-      if ( !videoChannelBound && ((AVModality)sender).CanInvoke(ModalityAction.Connect) ) {
-        videoChannelBound = true;
-        BindToVideoChannelChanges(callback);
-      }
+      System.Console.WriteLine("ActionAvailabilityChanged");
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "AvModality", eventType= "ActionAvailabilityChanged", data= e});
+      BindToVideoChannelChanges();
     };
 
     avModality.ModalityStateChanged += (sender, e) => {
-      callback(new KeyValuePair<String, Object>("AvModality:ModalityStateChanged:", e));
+      System.Console.WriteLine("ModalityStateChanged");
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "AvModality", eventType= "ModalityStateChanged", data= e});
     };
-
-    return null;
   }
+}
 
-  public Task<object> BindToConversationChanges(Func<object, Task<object>> callback) {
-
-    var conversation = LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
-
-    conversation.StateChanged += (sender, e) => {
-      callback(new KeyValuePair<String, Object>("Conversation:StateChanged", e));
-    };
-
-    return null;
-  }
-
+public class Startup
+{
   public Task<object> BindToConversationManagerChanges(Func<object, Task<object>> callback) {
-
     var ConversationManager = LyncClient.GetClient().ConversationManager;
-
     ConversationManager.ConversationAdded += (sender, e) => {
-      callback(new KeyValuePair<String, Object>("ConversationManager:ConversationAdded", null));
-      BindToConversationChanges(callback);
-      BindToAvModalityChanges(callback);
+      string conversationId = (string) e.Conversation.Properties[ConversationProperty.Id];
+      System.Console.WriteLine("ConversationAdded");
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "ConversationManager", eventType= "ConversationAdded" });
+      var listener = new ConversationListener(e.Conversation, callback);
+      listener.listen();
     };
 
     ConversationManager.ConversationRemoved += (sender, e) => {
-      callback(new KeyValuePair<String, Object>("ConversationManager:ConversationRemoved", null));
+      string conversationId = (string) e.Conversation.Properties[ConversationProperty.Id];
+      System.Console.WriteLine("ConversationRemoved");
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "ConversationManager", eventType= "ConversationRemoved"});
     };
 
     return null;

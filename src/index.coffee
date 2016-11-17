@@ -12,8 +12,8 @@ class Connector extends EventEmitter
     @worker = async.queue async.timeout(@_handleDesiredState, TWENTY_SECONDS), 1
 
   start: (device, callback) =>
-    @Lync.emitEvents =>
-      debug arguments
+    @Lync.emitEvents (label, data)=>
+      debug label, JSON.stringify(data, null, 2)
 
     { @uuid } = device
     @onConfig device, (error) =>
@@ -25,7 +25,7 @@ class Connector extends EventEmitter
     return callback()
 
   onConfig: (device, callback=->) =>
-    return callback unless _.isEqual @uuid, device.uuid
+    return callback() #unless _.isEqual @uuid, device.uuid
     @_computeState (error, state) =>
       return callback error if error
       return @_emitNoClient {state}, callback unless state.hasClient
@@ -117,6 +117,7 @@ class Connector extends EventEmitter
     @Lync.startVideo null, =>
       @_reverseDelay 1000, =>
         @Lync.getState null, (error, state) =>
+          return callback(error) if error?
           return @_startVideo callback unless state.videoEnabled
           return callback()
 

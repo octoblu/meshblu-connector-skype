@@ -13,6 +13,7 @@ public class Startup
   public Conversation GetConversation()
   {
     System.Console.WriteLine("start-video:GetConversation");
+    System.Console.WriteLine("hello world: "+LyncClient.GetClient().ConversationManager.Conversations.Count);
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
   }
 
@@ -100,9 +101,13 @@ public class Startup
   {
     System.Console.WriteLine("start-video:waitTillConnected");
     var tcs = new TaskCompletionSource<bool>();
-
+    if (videoChannel.State == ChannelState.Send || videoChannel.State == ChannelState.Receive || videoChannel.State == ChannelState.SendReceive) {
+      return null;
+    }
     videoChannel.StateChanged += (sender, e) => {
+      System.Console.WriteLine("videoChannel.StateChanged: " + e.NewState);
       if (e.NewState == ChannelState.Send || e.NewState == ChannelState.Receive || e.NewState == ChannelState.SendReceive) {
+        System.Console.WriteLine("videoChannel is sending or receiving");
         tcs.TrySetResult(true);
       }
     };
@@ -117,6 +122,7 @@ public class Startup
     System.Console.WriteLine("start-video:gotVideo");
     if (videoChannel == null) return null;
     videoChannel.BeginStart(null, null);
+    // await Task.Factory.FromAsync(videoChannel.BeginStart, videoChannel.EndStart, null);
     await waitTillConnected(videoChannel);
 
     // System.Console.WriteLine("start-video:it wasn't null");
