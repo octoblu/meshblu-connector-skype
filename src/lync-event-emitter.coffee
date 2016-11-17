@@ -1,6 +1,7 @@
 _ = require 'lodash'
+debug = require('debug')('meshblu-connector-skype:lync-event-emitter')
 EventEmitter = require 'eventemitter2'
-class LyncEventHandler extends EventEmitter
+class LyncEventEmitter extends EventEmitter
   constructor: ->
     @conversations = {}
 
@@ -10,9 +11,8 @@ class LyncEventHandler extends EventEmitter
     @handleVideoChannelEvent {conversationId, eventType, data} if eventSource == 'VideoChannel'
     @handleAVModalityEvent {conversationId, eventType, data} if eventSource == 'AvModality'
 
-    console.log JSON.stringify(@conversations, null, 2)
+    debug JSON.stringify(@conversations, null, 2)
     @emit 'change', @conversations
-
 
   handleConversationEvent: ({conversationId, eventType, data}) =>
     if eventType == 'StateChanged'
@@ -39,4 +39,4 @@ class LyncEventHandler extends EventEmitter
     if eventType == 'ModalityStateChanged'
       _.set @conversations, "#{conversationId}.modality.state", data.NewState
 
-module.exports = LyncEventHandler
+module.exports = LyncEventEmitter

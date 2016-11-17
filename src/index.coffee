@@ -2,7 +2,7 @@ async            = require 'async'
 {EventEmitter}   = require 'events'
 _                = require 'lodash'
 debug            = require('debug')('meshblu-connector-skype:index')
-LyncEventHandler = require './lync-event-handler'
+LyncEventEmitter = require './lync-event-emitter'
 
 TWENTY_SECONDS = 20 * 1000
 
@@ -10,10 +10,10 @@ class Connector extends EventEmitter
   constructor: ({@Lync}) ->
     @Lync ?= require './lync-manager'
     @worker = async.queue @_handleDesiredState, 1
-    @lyncEventHandler = new LyncEventHandler()
+    @lyncEventEmitter = new LyncEventEmitter()
 
   start: (device, callback) =>
-    @Lync.emitEvents @lyncEventHandler.handle
+    @Lync.emitEvents @lyncEventEmitter.handle
 
     { @uuid } = device
     @onConfig device, (error) =>
@@ -60,7 +60,7 @@ class Connector extends EventEmitter
     @_previousUpdate = update
     callback()
 
-  _handleDesiredState: (desiredState, callback) =>
+  _handleDesiredState: (desiredState, callback) =>    
     async.series [
       async.apply(@_handleMeeting,      desiredState)
       async.apply(@_handleAudioEnabled, desiredState)
@@ -93,7 +93,7 @@ class Connector extends EventEmitter
       @Lync.joinMeeting meeting.url, callback
 
   _handleVideoEnabled: (desiredState, callback) =>
-    console.log '_handleVideoEnabled', desiredState
+    debug '_handleVideoEnabled', desiredState
     return callback() unless _.has desiredState, 'videoEnabled'
 
     return @Lync.stopVideo null, callback unless desiredState.videoEnabled
@@ -101,23 +101,23 @@ class Connector extends EventEmitter
     return @_startVideo callback
 
   _startVideo: (callback) =>
-    console.log "trying to _startVideo"
-    conversation = _.first _.values @lyncEventHandler.conversations
+    debug "trying to _startVideo"
+    conversation = _.first _.values @lyncEventEmitter.conversations
     unless conversation?
-      console.log "You don't have a conversation bro. Giving up"
+      debug "You don't have a conversation bro. Giving up"
       return callback()
     videoState = _.get conversation, 'video.state'
     if videoState == 'Send' || videoState == 'SendReceive'
-      console.log "videoState was #{videoState}. We're done!"
+      debug "videoState was #{videoState}. We're done!"
       return callback()
 
     unless _.get(conversation, 'modality.state') == 'Connected'
-      console.log 'not connected. waiting till next time'
-      @lyncEventHandler.once 'change', => @_startVideo callback
+      debug 'not connected. waiting till next time'
+      @lyncEventEmitter.once 'change', => @_startVideo callback
 
     unless _.get(conversation, 'video.actions.Start') || _.get(conversation, 'video.actions.Resume')
-      console.log "I can't resume or start the video. waiting until next time"
-      @lyncEventHandler.once 'change', => @_startVideo callback
+      debug "I can't resume or start the video. waiting until next time"
+      @lyncEventEmitter.once 'change', => @_startVideo callback
 
     @Lync.startVideo callback
 
