@@ -33,6 +33,7 @@
     "coffee-script": "^1.10.0",
     "debug": "^2.2.0",
     "edge": "^5.9.2",
+    "eventemitter2": "^2.2.0",
     "fs-cson": "^0.3.2",
     "lodash": "^4.16.6",
     "meshblu-config": "^4.0.0",

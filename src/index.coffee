@@ -1,7 +1,8 @@
-async          = require 'async'
-{EventEmitter} = require 'events'
-_              = require 'lodash'
-debug           = require('debug')('meshblu-connector-skype:index')
+async            = require 'async'
+{EventEmitter}   = require 'events'
+_                = require 'lodash'
+debug            = require('debug')('meshblu-connector-skype:index')
+LyncEventHandler = require './lync-event-handler'
 
 TWENTY_SECONDS = 20 * 1000
 
@@ -10,10 +11,10 @@ class Connector extends EventEmitter
     @autoKillStack = []
     @Lync ?= require './lync-manager'
     @worker = async.queue async.timeout(@_handleDesiredState, TWENTY_SECONDS), 1
+    @lyncEventHandler = new LyncEventHandler()
 
   start: (device, callback) =>
-    @Lync.emitEvents (label, data)=>
-      debug label, JSON.stringify(data, null, 2)
+    @Lync.emitEvents @lyncEventHandler.handle
 
     { @uuid } = device
     @onConfig device, (error) =>
@@ -24,8 +25,11 @@ class Connector extends EventEmitter
   close: (callback) =>
     return callback()
 
-  onConfig: (device, callback=->) =>
-    return callback() #unless _.isEqual @uuid, device.uuid
+  onConfig: ({desiredState}, callback=->) =>
+    @_handleVideoEnabled desiredState, callback
+
+  _onConfig: (device, callback=->) =>
+    return callback() unless _.isEqual @uuid, device.uuid
     @_computeState (error, state) =>
       return callback error if error
       return @_emitNoClient {state}, callback unless state.hasClient
@@ -102,24 +106,22 @@ class Connector extends EventEmitter
       @Lync.joinMeeting meeting.url, callback
 
   _handleVideoEnabled: (desiredState, callback) =>
-    debug '_handleVideoEnabled'
+    console.log '_handleVideoEnabled', desiredState
     return callback() unless _.has desiredState, 'videoEnabled'
 
-    return @Lync.stopVideo null, callback unless desiredState.videoEnabled
+    # return @_stopVideo null, callback unless desiredState.videoEnabled
+    return callback() unless desiredState.videoEnabled
     return @_startVideo callback
-    # setTimeout =>
-    # , 2000 # wait 2s. Just cause
-
-  _reverseDelay: (timeout, callback) =>
-    setTimeout callback, timeout
 
   _startVideo: (callback) =>
-    @Lync.startVideo null, =>
-      @_reverseDelay 1000, =>
-        @Lync.getState null, (error, state) =>
-          return callback(error) if error?
-          return @_startVideo callback unless state.videoEnabled
-          return callback()
+    console.log JSON.stringify @lyncEventHandler.conversations
+    conversation = _.first _.values @lyncEventHandler.conversations
+    console.log 'conversation', JSON.stringify conversation, null, 2
+    return callback() unless conversation?
+    videoState = _.get conversation, 'video.state'
+    return callback() if videoState == 'Send' || videoState == 'Receive' || videoState == 'SendReceive'
+    return @Lync.connectToVideo callback if _.get conversation, 'modality.actions.Connect'
+    @lyncEventHandler.once => _startVideo callback
 
 
 module.exports = Connector
