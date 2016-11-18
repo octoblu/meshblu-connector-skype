@@ -22,16 +22,18 @@ class Connector extends EventEmitter
   close: (callback) =>
     return callback()
 
-  onConfig: ({@desiredState}, callback=->) =>
-    #@truthandReconcilliation callback
+  onConfig: ({@desiredState}={}, callback=->) =>
+    console.log "ONCONFIG"
+    @truthandReconcilliation callback
 
   truthandReconcilliation: (callback) =>
     currentState = _.first _.values @lyncEventEmitter.conversations
-    return unless currentState?
-    return unless @desiredState
-    @_handleMeeting {currentState, @desiredState}, callback
+    debug "truthandReconcilliation", {currentState, @desiredState}
+    return callback() unless currentState?
+    return callback() unless @desiredState?
+    # @_handleMeeting {currentState, @desiredState}, callback
     @_handleAudioEnabled {currentState, @desiredState}, callback
-    @_handleVideoEnabled {currentState, @desiredState}, callback
+    #@_handleVideoEnabled {currentState, @desiredState}, callback
 
   _refreshCurrentState: (update=null, callback=->) =>
     @_computeState (error, state) =>
@@ -56,7 +58,12 @@ class Connector extends EventEmitter
 
   _handleAudioEnabled: ({currentState, desiredState}, callback) =>
     debug '_handleAudioEnabled'
+
     return callback() unless _.has desiredState, 'audioEnabled'
+    return callback() unless _.has currentState, 'self'
+    self = currentState.participants[currentState.self]
+    debug desiredState.audioEnabled, self.isMuted
+    return callback() if desiredState.audioEnabled != self.IsMuted
 
     return @Lync.unmute null, callback if desiredState.audioEnabled
     return @Lync.mute null, callback

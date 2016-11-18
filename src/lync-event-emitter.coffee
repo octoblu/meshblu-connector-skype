@@ -6,6 +6,7 @@ class LyncEventEmitter extends EventEmitter
     @conversations = {}
 
   handle: ({conversationId, eventSource, eventType, participantId, data}) =>
+    console.log {conversationId, eventSource, eventType}
     @handleConversationManagerEvent {conversationId, eventType, data} if eventSource == 'ConversationManager'
     @handleConversationEvent {conversationId, eventType, data} if eventSource == 'Conversation'
     @handleVideoChannelEvent {conversationId, eventType, data} if eventSource == 'VideoChannel'
@@ -31,12 +32,12 @@ class LyncEventEmitter extends EventEmitter
     if eventType == 'ParticipantAdded'
       safeId = _.replace data.Id, /\./g, '-'
       _.set @conversations, "#{conversationId}.participants.#{safeId}", data
+      _.set @conversations, "#{conversationId}.self", safeId if data.IsSelf
 
     if eventType == 'ParticipantRemoved'
       console.log "ParticipantRemoved", JSON.stringify(data, null, 2)
       safeId = _.replace data.Id, /\./g
       _.unset @conversations, "#{conversationId}.participants.#{safeId}"
-
 
   handleConversationManagerEvent: ({conversationId, eventType, data}) =>
     if eventType == 'ConversationAdded'
