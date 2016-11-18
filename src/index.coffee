@@ -27,13 +27,14 @@ class Connector extends EventEmitter
     @truthandReconcilliation callback
 
   truthandReconcilliation: (callback) =>
+    callback()
     currentState = _.first _.values @lyncEventEmitter.conversations
     debug "truthandReconcilliation", {currentState, @desiredState}
-    return callback() unless currentState?
-    return callback() unless @desiredState?
+    return unless currentState?
+    return unless @desiredState?
     # @_handleMeeting {currentState, @desiredState}, callback
-    @_handleAudioEnabled {currentState, @desiredState}, callback
-    #@_handleVideoEnabled {currentState, @desiredState}, callback
+    @_handleAudioEnabled {currentState, @desiredState}
+    @_handleVideoEnabled {currentState, @desiredState}
 
   _refreshCurrentState: (update=null, callback=->) =>
     @_computeState (error, state) =>
@@ -56,7 +57,7 @@ class Connector extends EventEmitter
       return callback error if error?
       return callback null, state
 
-  _handleAudioEnabled: ({currentState, desiredState}, callback) =>
+  _handleAudioEnabled: ({currentState, desiredState}, callback=->) =>
     debug '_handleAudioEnabled'
 
     return callback() unless _.has desiredState, 'audioEnabled'
@@ -80,7 +81,7 @@ class Connector extends EventEmitter
 
       @Lync.joinMeeting meeting.url, callback
 
-  _handleVideoEnabled: ({currentState, desiredState}, callback) =>
+  _handleVideoEnabled: ({currentState, desiredState}, callback=->) =>
     debug '_handleVideoEnabled', desiredState
     return callback() unless _.has desiredState, 'videoEnabled'
 
@@ -90,9 +91,6 @@ class Connector extends EventEmitter
 
   _startVideo: ({currentState, desiredState}, callback) =>
     debug "trying to _startVideo"
-    unless currentState?
-      debug "You don't have a currentState bro. Giving up"
-      return callback()
 
     videoState = _.get currentState, 'video.state'
     if videoState == 'Send' || videoState == 'SendReceive'
@@ -107,7 +105,7 @@ class Connector extends EventEmitter
       debug "I can't resume or start the video. waiting until next time"
       @lyncEventEmitter.once 'change', => @_startVideo callback
 
-    @Lync.startVideo callback
+    @Lync.startVideo(null)
 
 
 module.exports = Connector
