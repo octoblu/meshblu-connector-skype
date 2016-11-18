@@ -72,10 +72,11 @@ public class ConversationListener {
       callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "StateChanged", data= e});
     };
 
-    // conversation.PropertyChanged += (sender, e) => {
-    //   System.Console.WriteLine("PropertyChanged");
-    //   callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "PropertyChanged", data= e.Property});
-    // };
+    conversation.PropertyChanged += (sender, e) => {
+      System.Console.WriteLine("PropertyChanged " + e.Property);
+      if(e.Property != ConversationProperty.ConferencingUri && e.Property != ConversationProperty.ConferenceAccessInformation ) return;
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "PropertyChanged", data=e});
+    };
 
     conversation.ParticipantAdded += (sender, e) => {
       System.Console.WriteLine("ParticipantAdded");
@@ -118,7 +119,7 @@ public class Startup
     var ConversationManager = LyncClient.GetClient().ConversationManager;
     ConversationManager.ConversationAdded += (sender, e) => {
       string conversationId = (string) e.Conversation.Properties[ConversationProperty.Id];
-      callback(new ConversationEvent { conversationId= conversationId, eventSource= "ConversationManager", eventType= "ConversationAdded", data= e.Conversation.Properties[ConversationProperty.ConferenceAccessInformation] });
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "ConversationManager", eventType= "ConversationAdded", data= getSerializableConversation(e.Conversation) });
       var listener = new ConversationListener(e.Conversation, callback);
       listener.listen();
     };
@@ -130,6 +131,17 @@ public class Startup
 
     return null;
   }
+
+  private IDictionary<string, object> getSerializableConversation(Conversation conversation) {
+    var serializableConversation = new Dictionary<string, object>();
+    serializableConversation["Id"] = conversation.Properties[ConversationProperty.Id];
+    serializableConversation["Subject"] = conversation.Properties[ConversationProperty.Subject];
+    serializableConversation["ConferencingUri"] = conversation.Properties[ConversationProperty.ConferencingUri];
+    serializableConversation["ConferenceAccessInformation"] = conversation.Properties[ConversationProperty.ConferenceAccessInformation];
+
+    return serializableConversation;
+  }
+
 
   public async Task<object> Invoke(Func<object, Task<object>> callback)
   {

@@ -23,7 +23,6 @@ class Connector extends EventEmitter
     return callback()
 
   onConfig: ({@desiredState}={}, callback=->) =>
-    console.log "ONCONFIG"
     @truthandReconcilliation callback
 
   truthandReconcilliation: (callback) =>
@@ -32,7 +31,7 @@ class Connector extends EventEmitter
     debug "truthandReconcilliation", {currentState, @desiredState}
     return unless currentState?
     return unless @desiredState?
-    # @_handleMeeting {currentState, @desiredState}, callback
+    # @_handleMeeting {currentState, @desiredState}
     @_handleAudioEnabled {currentState, @desiredState}
     @_handleVideoEnabled {currentState, @desiredState}
 
@@ -69,7 +68,7 @@ class Connector extends EventEmitter
     return @Lync.unmute null, callback if desiredState.audioEnabled
     return @Lync.mute null, callback
 
-  _handleMeeting: ({currentState, desiredState}, callback) =>
+  _handleMeeting: ({currentState, desiredState}, callback=->) =>
     debug '_handleMeeting'
     return callback() unless _.has desiredState, 'meeting'
     {meeting} = desiredState
