@@ -11,10 +11,32 @@ using Microsoft.Lync.Model.Extensibility;
 
 public class ConversationEvent {
   public string conversationId;
+  public string participantId;
   public string eventSource;
   public string eventType;
   public object data;
 };
+
+public class ParticipantListener {
+  Participant participant;
+  string conversationId;
+  string participantId;
+
+  Func<object, Task<object>> callback;
+
+  public ParticipantListener(Participant participant, String conversationId, Func<object, Task<object>> callback) {
+    this.participant = participant;
+    this.participantId = participant.Contact.Uri;
+    this.callback = callback;
+    this.conversationId = conversationId;
+  }
+
+  public void listen() {
+    participant.IsMutedChanged += (sender, e) => {
+      callback(new ConversationEvent { participantId= participantId, conversationId= conversationId, eventSource= "Participant", eventType= "MutedChanged", data= e.IsMuted});
+    };
+  }
+}
 
 public class ConversationListener {
   Conversation conversation;
@@ -49,6 +71,33 @@ public class ConversationListener {
     conversation.StateChanged += (sender, e) => {
       callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "StateChanged", data= e});
     };
+
+    // conversation.PropertyChanged += (sender, e) => {
+    //   System.Console.WriteLine("PropertyChanged");
+    //   callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "PropertyChanged", data= e.Property});
+    // };
+
+    conversation.ParticipantAdded += (sender, e) => {
+      System.Console.WriteLine("ParticipantAdded");
+      var listener = new ParticipantListener(e.Participant, conversationId, callback);
+      listener.listen();
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "ParticipantAdded", data= getSerializableParticipant(e.Participant)});
+
+    };
+
+    conversation.ParticipantRemoved += (sender, e) => {
+      System.Console.WriteLine("ParticipantRemoved");
+      callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "ParticipantRemoved", data=getSerializableParticipant(e.Participant)});
+    };
+  }
+
+  private IDictionary<string, object> getSerializableParticipant(Participant participant) {
+    var serializableParticipant = new Dictionary<string, object>();
+    serializableParticipant["IsSelf"] = participant.IsSelf;
+    serializableParticipant["IsMuted"] = participant.IsMuted;
+    serializableParticipant["Name"] = participant.Properties[ParticipantProperty.Name];
+    serializableParticipant["Id"] = participant.Contact.Uri;
+    return serializableParticipant;
   }
 
   private void BindToAvModalityChanges() {

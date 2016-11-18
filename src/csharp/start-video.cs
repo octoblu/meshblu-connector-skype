@@ -16,13 +16,12 @@ public class Startup
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
   }
 
-  public async Task<object> Invoke(Func<object, Task<object>> callback)
+  public async Task<object> Invoke(string ignored)
   {
     var conversation = GetConversation();
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);
     var videoChannel = avModality.VideoChannel;
     videoChannel.BeginStart(null, null);
-    callback(null);
     return null;
   }
 }
