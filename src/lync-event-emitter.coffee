@@ -1,19 +1,20 @@
 _ = require 'lodash'
 debug = require('debug')('meshblu-connector-skype:lync-event-emitter')
-EventEmitter = require 'eventemitter2'
-class LyncEventEmitter extends EventEmitter
+{EventEmitter2} = require 'eventemitter2'
+
+class LyncEventEmitter extends EventEmitter2
   constructor: ->
     @conversations = {}
 
   handle: ({conversationId, eventSource, eventType, participantId, data}) =>
-    console.log {conversationId, eventSource, eventType}
+    debug {conversationId, eventSource, eventType}
     @handleConversationManagerEvent {conversationId, eventType, data} if eventSource == 'ConversationManager'
     @handleConversationEvent {conversationId, eventType, data} if eventSource == 'Conversation'
     @handleVideoChannelEvent {conversationId, eventType, data} if eventSource == 'VideoChannel'
     @handleAVModalityEvent {conversationId, eventType, data} if eventSource == 'AvModality'
     @handleParticipantEvent {conversationId, participantId, eventType, data} if eventSource == 'Participant'
     debug JSON.stringify(@conversations, null, 2)
-    @emit 'change', @conversations
+    @emit 'config', @conversations
 
 
   handleParticipantEvent: ({conversationId, participantId, eventType, data}) =>
@@ -26,7 +27,6 @@ class LyncEventEmitter extends EventEmitter
       _.set @conversations, "#{conversationId}.state", data.NewState
 
     if eventType == 'PropertyChanged'
-      console.log "PropertyChanged", JSON.stringify(data, null, 2)
       _.set @conversations, "#{conversationId}.properties.#{data.Property}", data.Value
 
     if eventType == 'ParticipantAdded'
@@ -35,7 +35,6 @@ class LyncEventEmitter extends EventEmitter
       _.set @conversations, "#{conversationId}.self", safeId if data.IsSelf
 
     if eventType == 'ParticipantRemoved'
-      console.log "ParticipantRemoved", JSON.stringify(data, null, 2)
       safeId = _.replace data.Id, /\./g
       _.unset @conversations, "#{conversationId}.participants.#{safeId}"
 

@@ -13,7 +13,6 @@ public class Startup
 {
   public Task<ConversationWindow> StartConversation(string joinUrl, long parentHwnd)
   {
-    System.Console.WriteLine("join-meeting:StartConversation");
     Automation automation = LyncClient.GetAutomation();
 
     return Task<ConversationWindow>.Factory.FromAsync(
@@ -25,7 +24,6 @@ public class Startup
 
   public async Task WaitTillCanFullscreen(ConversationWindow conversationWindow)
   {
-    System.Console.WriteLine("join-meeting:WaitTillCanFullscreen");
     var tcs = new TaskCompletionSource<bool>();
 
     conversationWindow.ActionAvailabilityChanged += (sender, e) => {
@@ -39,7 +37,6 @@ public class Startup
 
   public async Task<object> Invoke(string joinUrl)
   {
-    System.Console.WriteLine("join-meeting:Invoke");
     joinUrl = joinUrl + '?';
     var conversationWindow = await StartConversation(joinUrl, 0);
 

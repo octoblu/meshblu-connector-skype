@@ -73,13 +73,11 @@ public class ConversationListener {
     };
 
     conversation.PropertyChanged += (sender, e) => {
-      System.Console.WriteLine("PropertyChanged " + e.Property);
       if(e.Property != ConversationProperty.ConferencingUri && e.Property != ConversationProperty.ConferenceAccessInformation ) return;
       callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "PropertyChanged", data=e});
     };
 
     conversation.ParticipantAdded += (sender, e) => {
-      System.Console.WriteLine("ParticipantAdded");
       var listener = new ParticipantListener(e.Participant, conversationId, callback);
       listener.listen();
       callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "ParticipantAdded", data= getSerializableParticipant(e.Participant)});
@@ -87,7 +85,6 @@ public class ConversationListener {
     };
 
     conversation.ParticipantRemoved += (sender, e) => {
-      System.Console.WriteLine("ParticipantRemoved");
       callback(new ConversationEvent { conversationId= conversationId, eventSource= "Conversation", eventType= "ParticipantRemoved", data=getSerializableParticipant(e.Participant)});
     };
   }

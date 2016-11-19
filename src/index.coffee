@@ -10,9 +10,8 @@ class Connector extends EventEmitter
     @lyncEventEmitter = new LyncEventEmitter()
 
   start: (device, callback) =>
-    @lyncEventEmitter.on 'config', @truthandReconcilliation
+    @lyncEventEmitter.on 'config', @truthAndReconcilliation
     @Lync.emitEvents @lyncEventEmitter.handle
-
     { @uuid } = device
     @onConfig device, (error) =>
       return callback error if error
@@ -23,17 +22,37 @@ class Connector extends EventEmitter
     return callback()
 
   onConfig: ({@desiredState}={}, callback=->) =>
-    @truthandReconcilliation callback
+    @truthAndReconcilliation callback
 
-  truthandReconcilliation: (callback) =>
+  startMeeting: (callback) =>
+
+    finishStartMeetingHandler = (conversations) =>
+      console.log "saw the event"
+      # currentState = _.first _.values conversations
+      # console.log 'finishStartMeetingHandler', JSON.stringify currentState, null, 2
+      # conversationUrl = _.get currentState, 'properties.ConferenceAccessInformation.ExternalUrl'
+      # if conversationUrl?
+      #   @lyncEventEmitter.off 'config', finishStartMeetingHandler
+      #   callback null, {conversationUrl}
+
+    @Lync.stopMeetings null, (error) =>
+      console.log "MEETINGS HAVE BEEN STOPPED"
+      @lyncEventEmitter.on 'config', finishStartMeetingHandler
+      @Lync.createMeeting null
+
+  truthAndReconcilliation: (callback) =>
+    console.log 'truthAndReconcilliation'
     callback()
     currentState = _.first _.values @lyncEventEmitter.conversations
-    debug "truthandReconcilliation", {currentState, @desiredState}
+    debug "truthAndReconcilliation", {currentState, @desiredState}
     return unless currentState?
     return unless @desiredState?
     # @_handleMeeting {currentState, @desiredState}
     @_handleAudioEnabled {currentState, @desiredState}
     @_handleVideoEnabled {currentState, @desiredState}
+
+  updateDesiredState: (desiredState) =>
+    @emit 'update', {desiredState}
 
   _refreshCurrentState: (update=null, callback=->) =>
     @_computeState (error, state) =>
@@ -98,11 +117,9 @@ class Connector extends EventEmitter
 
     unless _.get(currentState, 'modality.state') == 'Connected'
       debug 'not connected. waiting till next time'
-      @lyncEventEmitter.once 'change', => @_startVideo callback
 
     unless _.get(currentState, 'video.actions.Start') || _.get(currentState, 'video.actions.Resume')
       debug "I can't resume or start the video. waiting until next time"
-      @lyncEventEmitter.once 'change', => @_startVideo callback
 
     @Lync.startVideo(null)
 
