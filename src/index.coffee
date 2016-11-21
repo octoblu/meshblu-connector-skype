@@ -21,35 +21,38 @@ class Connector extends EventEmitter
   close: (callback) =>
     return callback()
 
-  onConfig: ({@desiredState}={}, callback=->) =>
-    @truthAndReconcilliation callback
+  onConfig: ({@desiredState}={}, callback) =>
+    @truthAndReconcilliation()
+    callback()
 
   startMeeting: (callback) =>
-
+    console.log "startMeeting"
     finishStartMeetingHandler = (conversations) =>
-      console.log "saw the event"
-      # currentState = _.first _.values conversations
-      # console.log 'finishStartMeetingHandler', JSON.stringify currentState, null, 2
-      # conversationUrl = _.get currentState, 'properties.ConferenceAccessInformation.ExternalUrl'
-      # if conversationUrl?
-      #   @lyncEventEmitter.off 'config', finishStartMeetingHandler
-      #   callback null, {conversationUrl}
+      currentState = _.first _.values conversations
+      conversationUrl = _.get currentState, 'properties.ConferenceAccessInformation.ExternalUrl'
+      if conversationUrl
+        @lyncEventEmitter.off 'config', finishStartMeetingHandler
+        callback null, {conversationUrl}
 
     @Lync.stopMeetings null, (error) =>
       console.log "MEETINGS HAVE BEEN STOPPED"
       @lyncEventEmitter.on 'config', finishStartMeetingHandler
       @Lync.createMeeting null
 
-  truthAndReconcilliation: (callback) =>
-    console.log 'truthAndReconcilliation'
-    callback()
-    currentState = _.first _.values @lyncEventEmitter.conversations
-    debug "truthAndReconcilliation", {currentState, @desiredState}
-    return unless currentState?
-    return unless @desiredState?
-    # @_handleMeeting {currentState, @desiredState}
-    @_handleAudioEnabled {currentState, @desiredState}
-    @_handleVideoEnabled {currentState, @desiredState}
+  truthAndReconcilliation: =>
+    try
+      console.log 'truthAndReconcilliation'
+      currentState = _.first _.values @lyncEventEmitter.conversations
+      debug "truthAndReconcilliation", {currentState, @desiredState}
+      return unless currentState?
+      return unless @desiredState?
+      # @_handleMeeting {currentState, @desiredState}
+      @_handleAudioEnabled {currentState, @desiredState}
+      @_handleVideoEnabled {currentState, @desiredState}
+
+    catch error
+      console.log "ERROR!", error
+    return true
 
   updateDesiredState: (desiredState) =>
     @emit 'update', {desiredState}
@@ -121,6 +124,7 @@ class Connector extends EventEmitter
     unless _.get(currentState, 'video.actions.Start') || _.get(currentState, 'video.actions.Resume')
       debug "I can't resume or start the video. waiting until next time"
 
+    debug "Starting video"
     @Lync.startVideo(null)
 
 
