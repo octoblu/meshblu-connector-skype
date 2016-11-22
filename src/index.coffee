@@ -76,6 +76,7 @@ class Connector extends EventEmitter
     currentState = _.first _.values @lyncEventEmitter.conversations
     return callback null, {meeting: null} unless currentState?
     conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.ExternalUrl'
+    conversationUrl = null if _.isEmpty conversationUrl
     self = currentState.participants?[currentState.self]
     videoState = _.get currentState, 'video.state'
 
