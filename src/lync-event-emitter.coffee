@@ -20,22 +20,22 @@ class LyncEventEmitter extends EventEmitter2
   handleParticipantEvent: ({conversationId, participantId, eventType, data}) =>
     if eventType == 'MutedChanged'
       safeId = _.replace participantId, /\./g, '-'
-      _.set @conversations, "#{conversationId}.participants.#{safeId}.IsMuted", data
+      _.set @conversations, "#{conversationId}.participants.#{safeId}.isMuted", data
 
   handleConversationEvent: ({conversationId, eventType, data}) =>
     if eventType == 'StateChanged'
       _.set @conversations, "#{conversationId}.state", data.NewState
 
     if eventType == 'PropertyChanged'
-      _.set @conversations, "#{conversationId}.properties.#{data.Property}", data.Value
+      _.set @conversations, "#{conversationId}.properties.#{_.toLower data.Property}", data.Value
 
     if eventType == 'ParticipantAdded'
-      safeId = _.replace data.Id, /\./g, '-'
+      safeId = _.replace data.id, /\./g, '-'
       _.set @conversations, "#{conversationId}.participants.#{safeId}", data
       _.set @conversations, "#{conversationId}.self", safeId if data.IsSelf
 
     if eventType == 'ParticipantRemoved'
-      safeId = _.replace data.Id, /\./g
+      safeId = _.replace data.id, /\./g
       _.unset @conversations, "#{conversationId}.participants.#{safeId}"
 
   handleConversationManagerEvent: ({conversationId, eventType, data}) =>

@@ -11,11 +11,11 @@ class Connector extends EventEmitter
 
   start: (device, callback) =>
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
+    @lyncEventEmitter.on 'config', _.throttle @_refreshCurrentState, 500
     @Lync.emitEvents @lyncEventEmitter.handle
     { @uuid } = device
     @onConfig device, (error) =>
       return callback error if error
-      setInterval @_refreshCurrentState, 5000
       @_refreshCurrentState null, callback
 
   close: (callback) =>
@@ -31,7 +31,7 @@ class Connector extends EventEmitter
   startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>
       currentState = _.first _.values conversations
-      conversationUrl = _.get currentState, 'properties.ConferenceAccessInformation.ExternalUrl'
+      conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.externalUrl'
       if conversationUrl
         @lyncEventEmitter.off 'config', finishStartMeetingHandler
         callback null, meeting: url: conversationUrl
@@ -72,9 +72,24 @@ class Connector extends EventEmitter
 
   _computeState: (callback) =>
     debug '_computeState'
-    @Lync.getState null, (error, state) =>
-      return callback error if error?
-      return callback null, state
+    currentState = _.first _.values @lyncEventEmitter.conversations
+    console.log JSON.stringify currentState, null, 2
+    return callback null, {meeting: null} unless currentState?
+    conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.externalUrl'
+    self = currentState.participants?[currentState.self]
+    videoState = _.get currentState, 'video.state'
+
+    ourKindaState =
+      meeting:
+        url: conversationUrl
+        subject: _.get currentState, 'subject'
+      conversationId: _.get currentState, 'properties.id'
+      participants: _.get currentState, 'participants'
+      videoState: _.get currentState, 'video.state'
+      videoEnabled: videoState == 'Send' || videoState == 'SendReceive'
+      audioEnabled: !self?.isMuted
+
+    callback null, ourKindaState
 
   _handleAudioEnabled: (currentState, callback=->) =>
     debug '_handleAudioEnabled', {currentState, @desiredState}
@@ -103,7 +118,7 @@ class Connector extends EventEmitter
     return callback() if meeting == undefined
     return @Lync.stopMeetings null, callback if meeting == null
 
-    conversationUrl = _.get currentState, 'properties.ConferenceAccessInformation.ExternalUrl'
+    conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.externalUrl'
     return callback() if conversationUrl && meeting.url == conversationUrl
 
     debug 'stopping meetings'

@@ -91,10 +91,10 @@ public class ConversationListener {
 
   private IDictionary<string, object> getSerializableParticipant(Participant participant) {
     var serializableParticipant = new Dictionary<string, object>();
-    serializableParticipant["IsSelf"] = participant.IsSelf;
-    serializableParticipant["IsMuted"] = participant.IsMuted;
-    serializableParticipant["Name"] = participant.Properties[ParticipantProperty.Name];
-    serializableParticipant["Id"] = participant.Contact.Uri;
+    serializableParticipant["isSelf"] = participant.IsSelf;
+    serializableParticipant["isMuted"] = participant.IsMuted;
+    serializableParticipant["name"] = participant.Properties[ParticipantProperty.Name];
+    serializableParticipant["id"] = participant.Contact.Uri;
     return serializableParticipant;
   }
 
@@ -131,10 +131,10 @@ public class Startup
 
   private IDictionary<string, object> getSerializableConversation(Conversation conversation) {
     var serializableConversation = new Dictionary<string, object>();
-    serializableConversation["Id"] = conversation.Properties[ConversationProperty.Id];
-    serializableConversation["Subject"] = conversation.Properties[ConversationProperty.Subject];
-    serializableConversation["ConferencingUri"] = conversation.Properties[ConversationProperty.ConferencingUri];
-    serializableConversation["ConferenceAccessInformation"] = conversation.Properties[ConversationProperty.ConferenceAccessInformation];
+    serializableConversation["id"] = conversation.Properties[ConversationProperty.Id];
+    serializableConversation["subject"] = conversation.Properties[ConversationProperty.Subject];
+    serializableConversation["conferencingUri"] = conversation.Properties[ConversationProperty.ConferencingUri];
+    serializableConversation["conferenceAccessInformation"] = conversation.Properties[ConversationProperty.ConferenceAccessInformation];
 
     return serializableConversation;
   }
