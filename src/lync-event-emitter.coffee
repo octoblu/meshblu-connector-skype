@@ -27,12 +27,12 @@ class LyncEventEmitter extends EventEmitter2
       _.set @conversations, "#{conversationId}.state", data.NewState
 
     if eventType == 'PropertyChanged'
-      _.set @conversations, "#{conversationId}.properties.#{_.toLower data.Property}", data.Value
+      _.set @conversations, "#{conversationId}.properties.#{_.camelCase data.Property}", data.Value
 
     if eventType == 'ParticipantAdded'
       safeId = _.replace data.id, /\./g, '-'
       _.set @conversations, "#{conversationId}.participants.#{safeId}", data
-      _.set @conversations, "#{conversationId}.self", safeId if data.IsSelf
+      _.set @conversations, "#{conversationId}.self", safeId if data.isSelf
 
     if eventType == 'ParticipantRemoved'
       safeId = _.replace data.id, /\./g
