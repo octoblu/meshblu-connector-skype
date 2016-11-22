@@ -11,12 +11,13 @@ class Connector extends EventEmitter
 
   start: (device, callback) =>
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
-    @lyncEventEmitter.on 'config', _.throttle @_refreshCurrentState, 500
+    @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 500
+    # @lyncEventEmitter.on 'config', (config) => console.log JSON.stringify config, null, 2
     @Lync.emitEvents @lyncEventEmitter.handle
     { @uuid } = device
     @onConfig device, (error) =>
       return callback error if error
-      @_refreshCurrentState null, callback
+      @_refreshCurrentState callback
 
   close: (callback) =>
     return callback()
@@ -55,10 +56,10 @@ class Connector extends EventEmitter
   updateDesiredState: (desiredState) =>
     @emit 'update', {desiredState}
 
-  _refreshCurrentState: (update=null, callback=->) =>
+  _refreshCurrentState: (callback=->) =>
     @_computeState (error, state) =>
       return callback error if error?
-      @_emitUpdate _.defaults({state}, update), callback
+      @_emitUpdate {state}, callback
 
   _emitNoClient: ({state}, callback) =>
     @emit 'error', new Error('Cannot find running Lync Process')
@@ -86,6 +87,7 @@ class Connector extends EventEmitter
       conversationId: _.get currentState, 'properties.id'
       videoState: _.get currentState, 'video.state'
       videoEnabled: videoState == 'Send' || videoState == 'SendReceive'
+      videoActions: _.get currentState, 'video.actions'
       audioEnabled: !self?.isMuted
 
     callback null, ourKindaState
