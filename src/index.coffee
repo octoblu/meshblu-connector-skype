@@ -21,38 +21,36 @@ class Connector extends EventEmitter
   close: (callback) =>
     return callback()
 
-  onConfig: ({@desiredState}={}, callback) =>
-    @truthAndReconcilliation()
+  onConfig: ({desiredState}={}, callback) =>
     callback()
+    return if _.isEmpty desiredState
+    @desiredState = desiredState
+    @updateDesiredState {}
+    @truthAndReconcilliation()
 
-  startMeeting: (callback) =>
-    console.log "startMeeting"
+  startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>
       currentState = _.first _.values conversations
       conversationUrl = _.get currentState, 'properties.ConferenceAccessInformation.ExternalUrl'
       if conversationUrl
         @lyncEventEmitter.off 'config', finishStartMeetingHandler
-        callback null, {conversationUrl}
+        callback null, meeting: url: conversationUrl
 
     @Lync.stopMeetings null, (error) =>
-      console.log "MEETINGS HAVE BEEN STOPPED"
       @lyncEventEmitter.on 'config', finishStartMeetingHandler
-      @Lync.createMeeting null
+      @updateDesiredState {audioEnabled, videoEnabled, meeting: {}}
 
   truthAndReconcilliation: =>
-    try
-      console.log 'truthAndReconcilliation'
-      currentState = _.first _.values @lyncEventEmitter.conversations
-      debug "truthAndReconcilliation", {currentState, @desiredState}
-      return unless currentState?
-      return unless @desiredState?
-      # @_handleMeeting {currentState, @desiredState}
-      @_handleAudioEnabled {currentState, @desiredState}
-      @_handleVideoEnabled {currentState, @desiredState}
+    currentState = _.first _.values @lyncEventEmitter.conversations
+    debug "truthAndReconcilliation", {currentState, @desiredState}
+    return unless @desiredState?
 
-    catch error
-      console.log "ERROR!", error
-    return true
+    @_handleMeeting currentState, (error) =>
+      delete @desiredState.meeting
+
+    @_handleAudioEnabled currentState
+
+    @_handleVideoEnabled currentState
 
   updateDesiredState: (desiredState) =>
     @emit 'update', {desiredState}
@@ -78,54 +76,70 @@ class Connector extends EventEmitter
       return callback error if error?
       return callback null, state
 
-  _handleAudioEnabled: ({currentState, desiredState}, callback=->) =>
-    debug '_handleAudioEnabled'
+  _handleAudioEnabled: (currentState, callback=->) =>
+    debug '_handleAudioEnabled', {currentState, @desiredState}
 
-    return callback() unless _.has desiredState, 'audioEnabled'
+    return callback() unless _.has @desiredState, 'audioEnabled'
     return callback() unless _.has currentState, 'self'
+
     self = currentState.participants[currentState.self]
-    debug desiredState.audioEnabled, self.isMuted
-    return callback() if desiredState.audioEnabled != self.IsMuted
+    debug @desiredState.audioEnabled, self.isMuted
 
-    return @Lync.unmute null, callback if desiredState.audioEnabled
-    return @Lync.mute null, callback
+    if @desiredState.audioEnabled
+      return @Lync.unmute null, (error) =>
+        return callback error if error?
+        delete @desiredState.audioEnabled
+        callback()
 
-  _handleMeeting: ({currentState, desiredState}, callback=->) =>
-    debug '_handleMeeting'
-    return callback() unless _.has desiredState, 'meeting'
-    {meeting} = desiredState
+    return @Lync.mute null, =>
+      return callback error if error?
+      delete @desiredState.audioEnabled
+      callback()
 
+  _handleMeeting: (currentState, callback=->) =>
+    debug '_handleMeeting', {@desiredState, currentState}
+    {meeting} = @desiredState
+    delete @desiredState.meeting
+    return callback() if meeting == undefined
+    return @Lync.stopMeetings null, callback if meeting == null
+
+    conversationUrl = _.get currentState, 'properties.ConferenceAccessInformation.ExternalUrl'
+    return callback() if conversationUrl && meeting.url == conversationUrl
+
+    debug 'stopping meetings'
     @Lync.stopMeetings null, (error) =>
       return callback error if error?
-      return callback() if _.isEmpty meeting
       return @Lync.createMeeting null, callback if _.isEmpty meeting.url
-
       @Lync.joinMeeting meeting.url, callback
 
-  _handleVideoEnabled: ({currentState, desiredState}, callback=->) =>
-    debug '_handleVideoEnabled', desiredState
-    return callback() unless _.has desiredState, 'videoEnabled'
+  _handleVideoEnabled: (currentState, callback=->) =>
+    debug '_handleVideoEnabled', @desiredState
+    return callback() unless _.has @desiredState, 'videoEnabled'
 
-    return @Lync.stopVideo null, callback unless desiredState.videoEnabled
-    return callback() unless desiredState.videoEnabled
-    return @_startVideo {currentState, desiredState}, callback
+    return @Lync.stopVideo null, callback unless @desiredState.videoEnabled
+    return @_startVideo currentState, callback
 
-  _startVideo: ({currentState, desiredState}, callback) =>
+  _startVideo: (currentState, callback) =>
     debug "trying to _startVideo"
 
     videoState = _.get currentState, 'video.state'
     if videoState == 'Send' || videoState == 'SendReceive'
       debug "videoState was #{videoState}. We're done!"
+      delete @desiredState.videoEnabled
       return callback()
 
     unless _.get(currentState, 'modality.state') == 'Connected'
       debug 'not connected. waiting till next time'
+      return callback()
 
     unless _.get(currentState, 'video.actions.Start') || _.get(currentState, 'video.actions.Resume')
       debug "I can't resume or start the video. waiting until next time"
+      return callback()
 
     debug "Starting video"
-    @Lync.startVideo(null)
-
+    @Lync.startVideo null, (error) =>
+      return callback error if error?
+      delete @desiredState.videoEnabled
+      callback()
 
 module.exports = Connector

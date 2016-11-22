@@ -7,13 +7,7 @@ class StartMeeting
 
   do: (job, callback) =>
     {audioEnabled, videoEnabled} = _.get job, 'data', {}
-    console.log 'updateDesiredState'
-    @connector.updateDesiredState {
-      meeting: {}
-      audioEnabled: audioEnabled
-      videoEnabled: videoEnabled
-    }
-    @connector.startMeeting (error, meeting) =>
+    @connector.startMeeting {audioEnabled, videoEnabled}, (error, meeting) =>
       return callback error if error?
       callback null, {
         metadata:
