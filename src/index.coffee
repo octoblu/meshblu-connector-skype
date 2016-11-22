@@ -31,7 +31,7 @@ class Connector extends EventEmitter
   startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>
       currentState = _.first _.values conversations
-      conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.externalUrl'
+      conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.ExternalUrl'
       if conversationUrl
         @lyncEventEmitter.off 'config', finishStartMeetingHandler
         callback null, meeting: url: conversationUrl
@@ -73,9 +73,8 @@ class Connector extends EventEmitter
   _computeState: (callback) =>
     debug '_computeState'
     currentState = _.first _.values @lyncEventEmitter.conversations
-    console.log JSON.stringify currentState, null, 2
     return callback null, {meeting: null} unless currentState?
-    conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.externalUrl'
+    conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.ExternalUrl'
     self = currentState.participants?[currentState.self]
     videoState = _.get currentState, 'video.state'
 
@@ -83,8 +82,8 @@ class Connector extends EventEmitter
       meeting:
         url: conversationUrl
         subject: _.get currentState, 'subject'
+        participants: _.get currentState, 'participants'
       conversationId: _.get currentState, 'properties.id'
-      participants: _.get currentState, 'participants'
       videoState: _.get currentState, 'video.state'
       videoEnabled: videoState == 'Send' || videoState == 'SendReceive'
       audioEnabled: !self?.isMuted
@@ -118,7 +117,7 @@ class Connector extends EventEmitter
     return callback() if meeting == undefined
     return @Lync.stopMeetings null, callback if meeting == null
 
-    conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.externalUrl'
+    conversationUrl = _.get currentState, 'properties.conferenceAccessInformation.ExternalUrl'
     return callback() if conversationUrl && meeting.url == conversationUrl
 
     debug 'stopping meetings'
