@@ -12,7 +12,7 @@ class Connector extends EventEmitter
   start: (device, callback) =>
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
     @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 500
-    @lyncEventEmitter.on 'config', (config) => console.log JSON.stringify config, null, 2
+    # @lyncEventEmitter.on 'config', (config) => console.log JSON.stringify config, null, 2
     @Lync.emitEvents @lyncEventEmitter.handle
     { @uuid } = device
     @onConfig device, (error) =>
@@ -98,6 +98,8 @@ class Connector extends EventEmitter
 
     return callback() unless _.has @desiredState, 'audioEnabled'
     return callback() unless _.has currentState, 'self'
+    return callback() unless _.lowerCase(currentState?.state) == 'active'
+
     self = _.get currentState, "participants.#{currentState.self}"
     debug @desiredState.audioEnabled, self.isMuted
 
@@ -135,6 +137,7 @@ class Connector extends EventEmitter
   _handleVideoEnabled: (currentState, callback=->) =>
     debug '_handleVideoEnabled', @desiredState
     return callback() unless _.has @desiredState, 'videoEnabled'
+    return callback() unless _.lowerCase(currentState?.state) == 'active'
 
     return @Lync.stopVideo null, callback unless @desiredState.videoEnabled
     return @_startVideo currentState, callback
