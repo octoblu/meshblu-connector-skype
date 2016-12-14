@@ -12,8 +12,7 @@ class Connector extends EventEmitter
   start: (device, callback) =>
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
     @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 500
-    # @lyncEventEmitter.on 'config', (config) => console.log JSON.stringify config, null, 2
-    @Lync.emitEvents @lyncEventEmitter.handle
+    @lyncEventEmitter.on 'config', (config) => console.log JSON.stringify config, null, 2
     { @uuid } = device
     @onConfig device, (error) =>
       return callback error if error
@@ -24,6 +23,7 @@ class Connector extends EventEmitter
 
   onConfig: ({desiredState}={}, callback) =>
     callback()
+    @Lync.emitEvents @lyncEventEmitter.handle
     return if _.isEmpty desiredState
     @desiredState = desiredState
     @updateDesiredState {}

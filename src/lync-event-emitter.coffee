@@ -24,7 +24,10 @@ class LyncEventEmitter extends EventEmitter2
 
   handleConversationEvent: ({conversationId, eventType, data}) =>
     if eventType == 'StateChanged'
-      _.set @conversations, "#{conversationId}.state", data.NewState
+      if data.NewState == 'Terminated'
+        _.unset @conversations, "#{conversationId}"
+      else
+        _.set @conversations, "#{conversationId}.state", data.NewState
 
     if eventType == 'PropertyChanged'
       _.set @conversations, "#{conversationId}.properties.#{_.camelCase data.Property}", data.Value
