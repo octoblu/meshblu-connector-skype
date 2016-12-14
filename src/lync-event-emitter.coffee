@@ -14,8 +14,10 @@ class LyncEventEmitter extends EventEmitter2
     @handleAVModalityEvent {conversationId, eventType, data} if eventSource == 'AvModality'
     @handleParticipantEvent {conversationId, participantId, eventType, data} if eventSource == 'Participant'
     debug JSON.stringify(@conversations, null, 2)
-    @emit 'config', @conversations
 
+    unless _.isEqual @conversations, @previousConversations
+      @emit 'config', @conversations
+      @previousConversations = _.cloneDeep @conversations
 
   handleParticipantEvent: ({conversationId, participantId, eventType, data}) =>
     if eventType == 'MutedChanged'
@@ -25,7 +27,7 @@ class LyncEventEmitter extends EventEmitter2
   handleConversationEvent: ({conversationId, eventType, data}) =>
     if eventType == 'StateChanged'
       if data.NewState == 'Terminated'
-        _.unset @conversations, "#{conversationId}"
+        delete @conversations[conversationId]
       else
         _.set @conversations, "#{conversationId}.state", data.NewState
 

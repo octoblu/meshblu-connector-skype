@@ -112,8 +112,19 @@ public class ConversationListener {
 
 public class Startup
 {
+  int currentHashCode = 0;
+
   public Task<object> BindToConversationManagerChanges(Func<object, Task<object>> callback) {
-    var ConversationManager = LyncClient.GetClient().ConversationManager;
+    var Client = LyncClient.GetClient();
+    var newHashCode = Client.GetHashCode();
+
+    if (currentHashCode == newHashCode) {
+      return null;
+    }
+    currentHashCode = newHashCode;
+
+    var ConversationManager = Client.ConversationManager;
+
     ConversationManager.ConversationAdded += (sender, e) => {
       string conversationId = (string) e.Conversation.Properties[ConversationProperty.Id];
       callback(new ConversationEvent { conversationId= conversationId, eventSource= "ConversationManager", eventType= "ConversationAdded", data= getSerializableConversation(e.Conversation) });
