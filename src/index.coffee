@@ -30,8 +30,10 @@ class Connector extends EventEmitter
     @updateDesiredState {}
     @truthAndReconcilliation()
 
-    if autoLaunchSkype LyncLauncher.autoCheck()
-    else LyncLauncher.stopAutoCheck()
+    if autoLaunchSkype == true
+      LyncLauncher.autoCheck()
+    else
+      LyncLauncher.stopAutoCheck()
 
   startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>

@@ -2,13 +2,13 @@ ps = require 'ps-node'
 _  = require 'lodash'
 exec = require('child_process').exec
 
-intervalId
-
 autoCheck = (intervalTime=10000) =>
-  if !intervalId intervalId = setInterval _checkLync, intervalTime
+  if !intervalId
+    intervalId = setInterval _checkLync, intervalTime
 
 stopAutoCheck = () =>
-  if intervalId intervalId = clearInterval intervalId
+  if intervalId
+    intervalId = clearInterval intervalId
 
 _checkLync = () =>
   ps.lookup {command: 'lync'}, (error, result) =>
