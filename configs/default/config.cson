@@ -1,6 +1,10 @@
 title: "Default Configuration"
 type: "object"
 properties:
+  autoLaunchSkype:
+    title: "Auto Launch Skype (win10 only)"
+    type: "boolean"
+    default: false
   desiredState:
     title: "Desired State"
     type: "object"

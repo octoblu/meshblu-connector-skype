@@ -9,7 +9,6 @@ class Connector extends EventEmitter
   constructor: ({@Lync}) ->
     @Lync ?= require './lync-manager'
     @lyncEventEmitter = new LyncEventEmitter()
-    LyncLauncher.autoCheck()
 
   start: (device, callback) =>
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
@@ -23,13 +22,16 @@ class Connector extends EventEmitter
   close: (callback) =>
     return callback()
 
-  onConfig: ({desiredState}={}, callback) =>
+  onConfig: ({desiredState, autoLaunchSkype}={}, callback) =>
     callback()
     @Lync.emitEvents @lyncEventEmitter.handle
     return if _.isEmpty desiredState
     @desiredState = desiredState
     @updateDesiredState {}
     @truthAndReconcilliation()
+
+    if autoLaunchSkype LyncLauncher.autoCheck()
+    else LyncLauncher.stopAutoCheck()
 
   startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>
