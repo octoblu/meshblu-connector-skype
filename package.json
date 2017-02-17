@@ -40,7 +40,8 @@
     "meshblu-config": "^4.0.0",
     "meshblu-connector-runner": "^10.1.2",
     "meshblu-connector-schema-generator": "^2.1.0",
-    "ps-node": "^0.1.4"
+    "ps-node": "^0.1.4",
+    "xml-js": "^1.0.2"
   },
   "meshbluConnector": {
     "githubSlug": "octoblu/meshblu-connector-skype"

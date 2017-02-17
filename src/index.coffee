@@ -1,9 +1,10 @@
-async            = require 'async'
-{EventEmitter}   = require 'events'
-_                = require 'lodash'
-debug            = require('debug')('meshblu-connector-skype:index')
-LyncEventEmitter = require './lync-event-emitter'
-LyncLauncher     = require './lync-launcher.coffee'
+async               = require 'async'
+{EventEmitter}      = require 'events'
+_                   = require 'lodash'
+debug               = require('debug')('meshblu-connector-skype:index')
+LyncEventEmitter    = require './lync-event-emitter'
+LyncLauncher        = require './lync-launcher.coffee'
+LyncDisableFeedback = require './lync-disable-feedback'
 
 class Connector extends EventEmitter
   constructor: ({@Lync}) ->
@@ -13,6 +14,8 @@ class Connector extends EventEmitter
   start: (device, callback) =>
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
     @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 500
+    LyncDisableFeedback.disable (error) =>
+      return callback error if error?
     # @lyncEventEmitter.on 'config', (config) => console.log JSON.stringify config, null, 2
     { @uuid } = device
     @onConfig device, (error) =>
