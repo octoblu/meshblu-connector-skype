@@ -14,8 +14,8 @@ class Connector extends EventEmitter
   start: (device, callback) =>
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
     @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 500
-    LyncDisableFeedback.disable (error) =>
-      return callback error if error?
+    # LyncDisableFeedback.disable (error) =>
+    #   return callback error if error?
     # @lyncEventEmitter.on 'config', (config) => console.log JSON.stringify config, null, 2
     { @uuid } = device
     @onConfig device, (error) =>
