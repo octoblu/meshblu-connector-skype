@@ -5,8 +5,7 @@ path    = require 'path'
 
 
 disable = (callback) =>
-  skypeFile = "C:\\#{process.env.HOMEPATH}\\AppData\\Roaming\\Skype\\shared.xml"
-  skypePath = path.basename skypeFile
+  skypePath = "C:\\#{process.env.HOMEPATH}\\AppData\\Roaming\\Skype\\shared.xml"
   skypeXml = fs.readFileSync skypePath, 'utf8'
   skypeJson = convert.xml2json skypeXml, { compact: true, spaces: 4 }
   _.unset skypeJson, 'Lib.StatsSender'
