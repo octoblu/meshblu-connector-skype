@@ -2,8 +2,12 @@ fs      = require 'fs'
 
 disable = (callback) =>
   skypePath = "#{process.env.APPDATA}\\Skype\\shared.xml"
-  fs.access skypePath, fs.constants.R_OK | fs.constants.W_OK, (error) =>
-    return callback error if error?
+  fs.access skypePath, (error) =>
+    if error
+      if error.code == 'ENOENT'
+        return callback null
+      else
+        return callback error
     fs.unlinkSync skypePath, (error) =>
       return callback error if error?
       callback null
