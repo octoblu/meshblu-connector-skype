@@ -298,9 +298,9 @@ debug@2.3.3:
   dependencies:
     ms "0.7.2"
 
-debug@^2.1.1, debug@^2.2.0:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.1.tgz#79855090ba2c4e3115cc7d8769491d58f0491351"
+debug@^2.1.1, debug@^2.2.0, debug@^2.6.2:
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.2.tgz#dfa96a861ee9b8c2f29349b3bcc41aa599a71e0f"
   dependencies:
     ms "0.7.2"
 
@@ -423,9 +423,9 @@ esutils@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.2.tgz#0abf4f1caa5bcb1f7a9d8acc6dea4faaa04bac9b"
 
-eventemitter2@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-3.0.1.tgz#180765bed7b8e6a7b52d353c508a4a24534bfdcb"
+eventemitter2@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-3.0.2.tgz#81c0edb739ffa64fb9f21bbcb1d2b419a5133512"
 
 extend@^3.0.0, extend@~3.0.0:
   version "3.0.0"
@@ -884,9 +884,9 @@ meshblu-config@^6.4.3:
     lodash "^3.9.1"
     meshblu-encryption "^2.0.1"
 
-meshblu-connector-runner@^10.3.2:
-  version "10.3.2"
-  resolved "https://registry.yarnpkg.com/meshblu-connector-runner/-/meshblu-connector-runner-10.3.2.tgz#58f44459143688af3fc0730f1c0de80eb16f95e1"
+meshblu-connector-runner@^10.4.0:
+  version "10.4.0"
+  resolved "https://registry.yarnpkg.com/meshblu-connector-runner/-/meshblu-connector-runner-10.4.0.tgz#3dc900fb5286dad19af1e463656021cc5ed2f652"
   dependencies:
     async "^2.1.5"
     bunyan "^1.8.5"
