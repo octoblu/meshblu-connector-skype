@@ -1,4 +1,4 @@
-async               = require 'async'
+child_process       = require 'child_process'
 {EventEmitter}      = require 'events'
 _                   = require 'lodash'
 debug               = require('debug')('meshblu-connector-skype:index')
@@ -12,6 +12,7 @@ class Connector extends EventEmitter
     @lyncEventEmitter = new LyncEventEmitter()
 
   start: (device, callback) =>
+    @_killFeedbackInterval = setInterval @killFeedback, 1000
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
     @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 500
     LyncDisableFeedback.disable (error) =>
@@ -23,6 +24,7 @@ class Connector extends EventEmitter
       @_refreshCurrentState callback
 
   close: (callback) =>
+    clearInterval @_killFeedbackInterval
     return callback()
 
   onConfig: ({desiredState, autoLaunchSkype}={}, callback) =>
@@ -38,6 +40,9 @@ class Connector extends EventEmitter
     else
       LyncLauncher.stopAutoCheck()
 
+  killFeedback: =>
+    child_process.exec 'taskkill /fi "WINDOWTITLE eq Skype for Business"'
+
   startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>
       currentState = _.first _.values conversations
@@ -47,6 +52,7 @@ class Connector extends EventEmitter
         callback null, meeting: url: conversationUrl
 
     @Lync.stopMeetings null, (error) =>
+      console.error '@Lync.stopMeetings', error.stack if error?
       @lyncEventEmitter.on 'config', finishStartMeetingHandler
       @updateDesiredState {audioEnabled, videoEnabled, meeting: {}}
 
@@ -56,6 +62,7 @@ class Connector extends EventEmitter
     return unless @desiredState?
 
     @_handleMeeting currentState, (error) =>
+      console.error '@_handleMeeting', error.stack if error?
       delete @desiredState.meeting
 
     @_handleAudioEnabled currentState
