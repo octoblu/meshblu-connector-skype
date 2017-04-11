@@ -14,7 +14,7 @@ class Connector extends EventEmitter
   start: (device, callback) =>
     @_killFeedbackInterval = setInterval @killFeedback, 1000
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
-    @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 500
+    @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 1000
     LyncDisableFeedback.disable (error) =>
       return callback error if error?
     # @lyncEventEmitter.on 'config', (config) => console.log JSON.stringify config, null, 2
@@ -176,9 +176,6 @@ class Connector extends EventEmitter
       return callback()
 
     debug "Starting video"
-    @Lync.startVideo null, (error) =>
-      return callback error if error?
-      delete @desiredState.videoEnabled
-      callback()
+    @Lync.startVideo null, callback
 
 module.exports = Connector
