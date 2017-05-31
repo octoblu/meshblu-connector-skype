@@ -1,6 +1,7 @@
 # Logs
 logs
 *.log
+log
 
 # Runtime data
 pids
@@ -28,5 +29,18 @@ node_modules
 deploy
 meshblu.json
 schemas.json
-log/
-tmp/
+.nyc_output
+
+jobs/**/*.js
+jobs/**/*.js.map
+jobs/**/*.json
+configs/**/*.js
+configs/**/*.js.map
+configs/**/*.json
+src/*.js
+src/*.js.map
+src/*.json
+
+tmp
+dist
+bin

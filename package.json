@@ -14,10 +14,33 @@
     "url": "https://github.com/octoblu/meshblu-connector-skype.git"
   },
   "scripts": {
-    "start": "meshblu-connector-runner",
+    "build": "./build.sh",
+    "start": "meshblu-connector",
     "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul && mocha --reporter json > coverage/mocha.json",
     "generate:package": "meshblu-connector-packager",
     "generate:schema": "meshblu-connector-schema-generator > schemas.json"
+  },
+  "bin": "command.js",
+  "pkg": {
+    "targets": [
+      "node7-macos-x64",
+      "node7-linux-x64",
+      "node7-linux-x86",
+      "node7-win-x64",
+      "node7-win-x86"
+    ],
+    "scripts": [
+      "index.js",
+      "src/*.js",
+      "jobs/**/*.js",
+      "configs/**/*.js"
+    ],
+    "assets": [
+      "package.json",
+      "jobs/**/*.json",
+      "configs/**/*.json",
+      "bin/*.node"
+    ]
   },
   "devDependencies": {
     "chai": "^3.5.0",
