@@ -3,7 +3,7 @@ child_process       = require 'child_process'
 _                   = require 'lodash'
 debug               = require('debug')('meshblu-connector-skype:index')
 LyncEventEmitter    = require './lync-event-emitter'
-LyncLauncher        = require './lync-launcher.coffee'
+LyncLauncher        = require './lync-launcher'
 LyncDisableFeedback = require './lync-disable-feedback'
 
 class Connector extends EventEmitter
