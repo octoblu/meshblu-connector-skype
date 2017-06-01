@@ -2,25 +2,17 @@
 
 set -e
 
-node_hid_madness() {
-  if [ ! -d ./node_modules/node-hid ]; then
+edge_madness() {
+  if [ ! -d ./node_modules/edge ]; then
     return 0
   fi
-  echo '* build node-hid'
-  if [ -n "$(which npm)" ] && [ "$TRAVIS_OS_NAME" == 'linux' ]; then
-    echo '* installing on linux with hidraw'
-    npm install node-hid --driver=hidraw
-  fi
+  echo '* build edge'
   if [ -d ./bin ]; then
     rm -rf ./bin
   fi
   mkdir ./bin
   cp "$(node_hid_bin)" ./bin/HID.node
   sed -ie "s@ require(binding_path)@ require(path.join(process.cwd(), 'bin', 'HID.node'))@" node_modules/node-hid/nodehid.js
-}
-
-node_hid_bin(){
-  node -e "console.log(require('node-pre-gyp').find('$PWD/node_modules/node-hid/package.json'))"
 }
 
 install_deps() {
@@ -112,7 +104,7 @@ main() {
   decoffee_index_file 'meshblu-http' './src/meshblu-http.js' './index.js'
   decoffee_module 'srv-failover' 'src'
   decoffee_index_file 'srv-failover' './src/srv-failover.js' './index.js'
-  node_hid_madness
+  edge_madness
   pkg_connector
 }
 
