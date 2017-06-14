@@ -1,6 +1,7 @@
 child_process       = require 'child_process'
 {EventEmitter}      = require 'events'
 _                   = require 'lodash'
+moment              = require 'moment'
 debug               = require('debug')('meshblu-connector-skype:index')
 LyncEventEmitter    = require './lync-event-emitter'
 LyncLauncher        = require './lync-launcher.coffee'
@@ -83,7 +84,7 @@ class Connector extends EventEmitter
 
   _emitUpdate: (update, callback) =>
     return callback() if _.isEqual update, @_previousUpdate
-    @emit 'update', update
+    @emit 'update', _.defaults {connectorUpdatedAt: moment().utc().toISOString()}, update
     @_previousUpdate = update
     callback()
 
