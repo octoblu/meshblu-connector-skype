@@ -1,6 +1,6 @@
 {
   "name": "meshblu-connector-skype",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "Meshblu Connector ",
   "homepage": "https://github.com/octoblu/meshblu-connector-skype",
   "bugs": "https://github.com/octoblu/meshblu-connector-skype/issues",
@@ -30,7 +30,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.4.2",
     "segfault-handler": "^1.0.0",
-    "sinon": "^2.3.4",
+    "sinon": "^2.3.5",
     "sinon-chai": "^2.11.0"
   },
   "dependencies": {
@@ -43,7 +43,7 @@
     "lodash": "^4.16.6",
     "lodash.isempty": "^4.4.0",
     "meshblu-config": "^8.0.1",
-    "meshblu-connector-cli": "^1.0.10",
+    "meshblu-connector-cli": "^1.1.1",
     "moment": "^2.18.1",
     "npm-run-all": "^4.0.2",
     "ps-node": "^0.1.6"
