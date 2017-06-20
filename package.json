@@ -1,6 +1,6 @@
 {
   "name": "meshblu-connector-skype",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "Meshblu Connector ",
   "homepage": "https://github.com/octoblu/meshblu-connector-skype",
   "bugs": "https://github.com/octoblu/meshblu-connector-skype/issues",
@@ -20,7 +20,7 @@
     "build": "node utils/build.js",
     "build:after": "node utils/after-build.js",
     "start": "meshblu-connector",
-    "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul && mocha --reporter json > coverage/mocha.json",
+    "test": "mocha",
     "generate:package": "meshblu-connector-packager",
     "generate:schema": "meshblu-connector-schema-generator > schemas.json"
   },
