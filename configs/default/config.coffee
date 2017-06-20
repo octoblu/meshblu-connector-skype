@@ -1,3 +1,4 @@
+module.exports = 
 title: "Default Configuration"
 type: "object"
 properties:

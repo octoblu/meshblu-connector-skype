@@ -2,53 +2,53 @@ edge = require 'edge'
 path = require 'path'
 
 references = [
-  'Microsoft.Lync.Model.dll'
-  'Microsoft.Lync.Controls.dll'
-  'Microsoft.Lync.Utilities.dll'
-  'Microsoft.Lync.Controls.Resources.dll'
-  'Microsoft.Lync.Controls.Framework.dll'
-  'Microsoft.Lync.Controls.Framework.Resources.dll'
-  'Microsoft.Office.Uc.dll'
+  path.join(process.cwd(), 'assets/dlls/Microsoft.Lync.Model.dll')
+  path.join(process.cwd(), 'assets/dlls/Microsoft.Lync.Controls.dll')
+  path.join(process.cwd(), 'assets/dlls/Microsoft.Lync.Utilities.dll')
+  path.join(process.cwd(), 'assets/dlls/Microsoft.Lync.Controls.Resources.dll')
+  path.join(process.cwd(), 'assets/dlls/Microsoft.Lync.Controls.Framework.dll')
+  path.join(process.cwd(), 'assets/dlls/Microsoft.Lync.Controls.Framework.Resources.dll')
+  path.join(process.cwd(), 'assets/dlls/Microsoft.Office.Uc.dll')
 ]
 
 createMeeting = edge.func
-  source: path.join __dirname, 'csharp/create-meeting.cs'
+  source: path.join process.cwd(), 'assets/csharp/create-meeting.cs'
   references: references
 
 joinMeeting = edge.func
-  source: path.join __dirname, 'csharp/join-meeting.cs'
+  source: path.join process.cwd(), 'assets/csharp/join-meeting.cs'
   references: references
 
 startVideo = edge.func
-  source: path.join __dirname, 'csharp/start-video.cs'
+  source: path.join process.cwd(), 'assets/csharp/start-video.cs'
   references: references
 
 stopVideo = edge.func
-  source: path.join __dirname, 'csharp/stop-video.cs'
+  source: path.join process.cwd(), 'assets/csharp/stop-video.cs'
   references: references
 
 stopMeetings = edge.func
-  source: path.join __dirname, 'csharp/stop-meetings.cs'
+  source: path.join process.cwd(), 'assets/csharp/stop-meetings.cs'
   references: references
 
 mute = edge.func
-  source: path.join __dirname, 'csharp/mute-self.cs'
+  source: path.join process.cwd(), 'assets/csharp/mute-self.cs'
   references: references
 
 unmute = edge.func
-  source: path.join __dirname, 'csharp/unmute-self.cs'
+  source: path.join process.cwd(), 'assets/csharp/unmute-self.cs'
   references: references
 
 getConferenceUri = edge.func
-  source: path.join __dirname, 'csharp/get-conferencing-uri.cs'
+  source: path.join process.cwd(), 'assets/csharp/get-conferencing-uri.cs'
   references: references
 
 getState = edge.func
-  source: path.join __dirname, 'csharp/get-state.cs'
+  source: path.join process.cwd(), 'assets/csharp/get-state.cs'
   references: references
 
 emitEvents = edge.func
-  source: path.join __dirname, 'csharp/emit-events.cs'
+  source: path.join process.cwd(), 'assets/csharp/emit-events.cs'
   references: references
 
 module.exports = {

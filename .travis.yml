@@ -1,69 +1,83 @@
-language: cpp
-os:
-- linux
-- osx
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - g++-4.8
-    - g++-4.8-multilib
-    - gcc-multilib
-    - build-essential
-    - libbluetooth-dev
-    - libudev-dev
-    - libusb-1.0-0-dev
-env:
-  global:
-  - DEBUG_CORE_DUMP="true"
-  matrix:
-  - PACKAGER_NODE_VERSION="5.5" PACKAGER_ARCH="amd64" MAIN_BUILD="true"
-  - PACKAGER_NODE_VERSION="5.5" PACKAGER_ARCH="386"
-matrix:
-  fast_finish: true
-  exclude:
-  - os: osx
-    env: PACKAGER_NODE_VERSION="5.5" PACKAGER_ARCH="386"
-before_install:
-- ulimit -c unlimited -S
-- PACKAGER_URL="https://meshblu-connector.octoblu.com/tools/packager/latest"
-- curl -fsS "${PACKAGER_URL}/travis_install_node.sh" -o /tmp/travis_install_node.sh
-- chmod +x /tmp/travis_install_node.sh
-- ". /tmp/travis_install_node.sh"
-- if [ "$TRAVIS_OS_NAME" == "linux" -a "$MAIN_BUILD" == "true" ]; then export NPM_PUBLISH="true"; fi
-install:
-- npm install --build-from-source
-script:
-- npm test
-before_deploy:
-- npm prune --production
-- npm install meshblu-connector-packager
-- npm dedupe
-- npm install -g flatten-packages
-- flatten-packages
-- npm run generate:package
-- npm run generate:schema
-- cp schemas.json deploy
-deploy:
-- provider: releases
-  api_key:
-    secure: "sgsMypPCcSYVXu40U+utZZ0akfriJqVDyQRPE+QAjZV4MwZFAAqmBXiNtuyznbM0WXDugdsE2mc70/swatrE37slmu7QEMVGVyEnkAnI2c7nbpKz6r1AMQjIQ7SiarxrfprGWPgPXpiy78muxoIjqxrwPH2vmlgAY0GdTuxdP233TBLm7zDRJnRs7MJTf41iyu4YV6VjGicMigLKYR+bl6Iz9rAzbzTOYadAza4kaGo2Gj2QJtQHG+EyPuq3dKOWnl3uolmWgohLcU6DJAu8xfnBnIT2bMN/l5dj4tgZSRmZEP/rtfzhqKkRqrnnIR4NcYaOtTaGZEM/3ScpQTGUXgb9YHmBeMOZQaLsVDRD+KQco1nxbTdy98q/11NIfiVTXVYVmSxOZUUuwYfVd7e5B7f0/ERh4m2xetsF8Rfnh5tr+rtLEqarkBeW/KCvRyt3nPDFFRRsOY9rCvXvemzZ3GiyykV/why5L7+/WXMv25cKhPnVl+YyZ09EPSzHhxEDGlhdN0tozhgF+NWTyl42pWliH2hDj4mjHZSvtU39eEmFL1rI4+azc5i9aPEfVfnvkQK7jlHRYo98EoLzWjNkFNPyALJSuBncvCpl6Dd/oMVRfDHr/4nhnM1a7S2yZD6NNhtIoWcUG+h9Y7iu40Uu5RhRG67YkIQUwTC2jr2F8tM="
-  file_glob: true
-  file:
-  - "deploy/*"
-  skip_cleanup: true
-  on:
-    tags: true
-- provider: npm
-  email: serveradmin@octoblu.com
-  api_key:
-    secure: "EWArkRISYEoB72xI+7FylVtoOfmuGBWliSNixYIaLtVN6nKZeM/WM6h/f91g41Z3TR25qEworms7qFnUwlxnMWDPe0Rx6Jcmr6NOiW5C5g2y8O7/fgJ2nGXrzo4Wp5iEpssIRsU/Wtxiay95SRcK5rXwsOz5pW/vnabFXCa43B8q7mSvhzmQX3a2Zzj2LkbAIzy3rsxUgM7klLhY90LyAS8lOP+vrFpwXShCrUB2E5/R/QcH1unxmaZ4Vn0a6o1+O5reaC/+tGHZS7ZdGCu79JsUUwg+BHjD8kiHwwcC7LWDLbo4CUPBvV0Tn9YBKtnJUA6mWCj0V9s6uBVuyYtrc3lunjgyyPPzcQ1Oz1mSD9Lg8Qu3StxFKax20X6m7BwbGgXL7mEhQxtH/5vsqyOLKYxvBj9g823+ApThurmQnEc90DeLtYIu3HGfeInlVFztVItDQOhjb95dr4tsIXuyZMssWbbimfCBRBCoCLuyGiD4c9/TcXWtT+ppWbTGjdlyf6kD7ABXbofOlNpsAnt2H6Jv2+ETUo2sz1wi/gAzW0nKrLZG+8BA8fAACyXN6Hkt/nsEvpKOJJCjyQcMfF+Zr5oTMeFwIBHYACMb5WEy7a4qYJUOq/YlRLLvlf6740KuGR2arDvZsd3uR0s3gHncfNSzZBxyhlrlmAVTr/c+nPs="
-  on:
-    tags: true
-    condition: "$NPM_PUBLISH = true"
-after_success:
-- bash <(curl -s https://codecov.io/bash)
 branches:
   only:
   - "/^v[0-9]/"
+env:
+  global:
+  - secure: we+fjtEl+EQU2B6YwhXs0/1Ms9+/jC++t0/5rYixl9CLHZDE9yuisKEkhTDJ1ot0bvbzX8GtEYzYuRZ3113oJdGMa9+AMdXa1Pzl4utymk7YcBqQ0FDBafT2IeTfBQ0obqkeNRhX5hBQOLAb7MAxTBAv0q+JFMsXYN185CGWdknb5Q3BBZKyfstQFeBTRy8o6Jn+okLezjcHn36eCS1TfcHhvuwxlcmIr2GU9xpWQs0hsqNC+ZHZCCBbiTaomWhnhAsFoA5vH2Nbi6QmPQEAmlT4hVKUf/Fhn5d+qwqSi5vcauOOED3eHyv3RzdOxFuQE4fzZE/R+9CUuT01K7Kts/lQz4Mu58e6xw6xczCIuo1yeWDA7kKpkWnGKFBDG3rgPch6FOmuBotwOJuoOlZfLb2qjiQ1DAk6D4lHQNAt1tLtBpX8USGXiqF2xyRZyZwmUoigz/RKp32ZHjgEkMkfUuA2hhvMzQSOTpQvV9csloG9LXs01s1+WSrVec1IbANlGffzqKZRSD9DL4raguf3Swt0tFb9nR/UnJhVwL0wdat+HyYhpAAHohpZifT/po/yny8FlfPmFt14uh9qGO36Eu9tWXMuLt8fvTIbZA0oRgT8TXANR8qOUg34UH78ZXC6h+4QtAFHWdoSiwRJMdsbIjcVGsjEMC4I/O9DJzD7yq4=
+  - secure: ldNeONzUqMfRkGaWdD9vEHkUx0pKAuA70Dnt+I/SZLKuvxQeB2NoFr6PBNEjdDSI2l/bsmpRj0Oqlo4d7dNO0fFa/PQ4WF2nY504eHSJzkJJJ7EHyqhMEheqDh96XWOrrpTsv/bjJr1GHCiyXKy6n0IMm81LcfD78bePPAS51/ajYhaUtJBt3xUSkkLtQEGYSGdJSwGqTuGt2MaeQNMfASF1GO/fR4k83L11S/SqYgcfKbmj/5Ow6NDQ5WaIeXRPEEnKYNjLKRmCSmxdOfWlbZ3v3zNjW4swEx9IvqSuSu6uxXOxcOuWqiWg6ibaeYJj5eA0WFYW+rPnWvP2fXPTqEBXeYN73lOPLXNr16JVBoH5pEMUHrzG9j3fGQCI13y4wrYmCkc1yJElxp1hxqc/Cn5LNBMfutclCQIpgKMFfAzM0yP+JkwMty3oROzO4RysucN4DZxXo14LzeQVgmD8++d72og/5faNJx1ql27SLuVb9ycM85xjDcWmF0zJRTwv3dU01mNPPuh8adSG/HzKh4PbaL7l9yOuHgrOVoHo09iHJloMOd8PUUtXdzGUJiLZbHpEzf4S2GAIksgO/MMbmzD3oiwfsUk0LQ97BNYUdMQyVDShSvv4zNFior5mC0Z4vkpYfa9eXZ4nhPdu95qxM2kkzGhJFgm+gS2CLaTOnyI=
+matrix:
+  include:
+  - os: linux
+    language: node_js
+    node_js: '8'
+    after_success:
+    - yarn global add meshblu-connector-schema-generator meshblu-connector-uploader-github
+    - mkdir -p ./deploy/assets
+    - meshblu-connector-schema-generator > ./deploy/assets/schemas.json
+    - meshblu-connector-uploader-github --installers-path ./deploy/assets
+  - os: linux
+    dist: trusty
+    language: shell
+    sudo: required
+    services:
+    - docker
+    install:
+    - docker pull octoblu/meshblu-connector-builder:linux-armv7
+    script:
+    - |
+      docker run --rm --volume $PWD:/work \
+        --env TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG \
+        --env TRAVIS_BRANCH=$TRAVIS_BRANCH \
+        --env MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN=$MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN \
+        octoblu/meshblu-connector-builder:linux-armv7 \
+          bash -c 'export HOME=/tmp/cache \
+            && meshblu-connector-pkger \
+            && meshblu-connector-installer-debian \
+            && meshblu-connector-uploader-github \
+          '
+  - os: linux
+    dist: trusty
+    language: shell
+    sudo: required
+    services:
+    - docker
+    install:
+    - docker pull octoblu/meshblu-connector-builder:linux-x86
+    script:
+    - |
+      docker run --rm --volume $PWD:/work \
+        --env TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG \
+        --env TRAVIS_BRANCH=$TRAVIS_BRANCH \
+        --env MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN=$MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN \
+        octoblu/meshblu-connector-builder:linux-x86 \
+          bash -c 'export HOME=/tmp/cache \
+            && meshblu-connector-pkger \
+            && meshblu-connector-installer-debian \
+            && meshblu-connector-uploader-github \
+          '
+  - os: linux
+    dist: trusty
+    language: shell
+    sudo: required
+    services:
+    - docker
+    install:
+    - docker pull octoblu/meshblu-connector-builder:linux-x64
+    script:
+    - |
+      docker run --rm --volume $PWD:/work \
+        --env TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG \
+        --env TRAVIS_BRANCH=$TRAVIS_BRANCH \
+        --env MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN=$MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN \
+        octoblu/meshblu-connector-builder:linux-x64 \
+          bash -c 'export HOME=/tmp/cache \
+            && meshblu-connector-pkger \
+            && meshblu-connector-installer-debian \
+            && meshblu-connector-uploader-github \
+          '
+  - os: osx
+    node_js: '8'
+    language: node_js
+    after_success:
+    - yarn global add meshblu-connector-pkger meshblu-connector-installer-macos meshblu-connector-uploader-github
+    - meshblu-connector-pkger && meshblu-connector-installer-macos && meshblu-connector-uploader-github

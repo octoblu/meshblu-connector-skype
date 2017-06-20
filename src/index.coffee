@@ -4,12 +4,13 @@ _                   = require 'lodash'
 moment              = require 'moment'
 debug               = require('debug')('meshblu-connector-skype:index')
 LyncEventEmitter    = require './lync-event-emitter'
-LyncLauncher        = require './lync-launcher.coffee'
+LyncLauncher        = require './lync-launcher'
 LyncDisableFeedback = require './lync-disable-feedback'
+LyncManager         = require './lync-manager'
 
 class Connector extends EventEmitter
   constructor: ({@Lync}) ->
-    @Lync ?= require './lync-manager'
+    @Lync ?= LyncManager
     @lyncEventEmitter = new LyncEventEmitter()
 
   start: (device, callback) =>
