@@ -1004,19 +1004,18 @@ meshblu-config@^8.0.1:
     lodash "^4.17.4"
     meshblu-encryption "^3.0.1"
 
-meshblu-connector-cli@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/meshblu-connector-cli/-/meshblu-connector-cli-1.1.1.tgz#b674f17c11a30e4c84b4277efa8f995036feb3a5"
+meshblu-connector-cli@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/meshblu-connector-cli/-/meshblu-connector-cli-1.1.4.tgz#3a84b97e13a4e40c504e9ccc2a19eebdedcbc5f7"
   dependencies:
     chalk "^1.1.3"
-    dotenv "^4.0.0"
-    dotenv-expand "^4.0.1"
-    meshblu-connector-runner "^11.0.4"
+    meshblu-connector-runner "^11.0.8"
     meshblu-http "^10.0.4"
+    octodash "^1.0.7"
 
-meshblu-connector-runner@^11.0.4:
-  version "11.0.5"
-  resolved "https://registry.yarnpkg.com/meshblu-connector-runner/-/meshblu-connector-runner-11.0.5.tgz#044f9110bfdaab8521776aca792056f957ec3036"
+meshblu-connector-runner@^11.0.8:
+  version "11.0.8"
+  resolved "https://registry.yarnpkg.com/meshblu-connector-runner/-/meshblu-connector-runner-11.0.8.tgz#965403b23cd39ea21d4f4c26a938604c878f08a7"
   dependencies:
     async "^2.4.1"
     dashdash "^1.14.1"
@@ -1203,6 +1202,17 @@ object-component@0.0.3:
 object-keys@^1.0.8:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.0.11.tgz#c54601778ad560f1142ce0e01bcca8b56d13426d"
+
+octodash@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/octodash/-/octodash-1.0.7.tgz#a4e5d3458e78ea02ff7ef84c4ba840d4d859d04b"
+  dependencies:
+    chalk "^1.1.3"
+    dashdash "^1.14.1"
+    debug "^2.6.8"
+    dotenv "^4.0.0"
+    dotenv-expand "^4.0.1"
+    lodash "^4.17.4"
 
 once@1.x, once@^1.3.0:
   version "1.4.0"
