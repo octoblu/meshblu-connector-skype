@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using Microsoft.Lync.Model;
 using Microsoft.Lync.Model.Conversation;
 using Microsoft.Lync.Model.Conversation.Sharing;
@@ -12,6 +13,7 @@ using Microsoft.Lync.Model.Extensibility;
 public class Startup
 {
   [DllImport("user32.dll")]
+  [return: MarshalAs(UnmanagedType.Bool)]
   static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
 
   static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
