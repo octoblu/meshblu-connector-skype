@@ -17,6 +17,7 @@ _checkLync = () =>
     return unless _.isEmpty result
     options =
       stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+      shell: true
       detached: true
 
     child = spawn 'cd C:\\ && start lync.exe', options
