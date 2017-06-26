@@ -4,7 +4,7 @@ _                   = require 'lodash'
 moment              = require 'moment'
 debug               = require('debug')('meshblu-connector-skype:index')
 LyncEventEmitter    = require './lync-event-emitter'
-LyncLauncher        = require './lync-launcher'
+# LyncLauncher        = require './lync-launcher'
 LyncDisableFeedback = require './lync-disable-feedback'
 
 class Connector extends EventEmitter
@@ -36,10 +36,10 @@ class Connector extends EventEmitter
     @updateDesiredState {}
     @truthAndReconcilliation()
 
-    if autoLaunchSkype == true
-      LyncLauncher.autoCheck()
-    else
-      LyncLauncher.stopAutoCheck()
+    # if autoLaunchSkype == true
+    #   LyncLauncher.autoCheck()
+    # else
+    #   LyncLauncher.stopAutoCheck()
 
   killFeedback: =>
     wincmd.list (tasks) =>
