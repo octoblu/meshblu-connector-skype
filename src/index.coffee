@@ -1,4 +1,4 @@
-child_process       = require 'child_process'
+{spawn}       = require 'child_process'
 {EventEmitter}      = require 'events'
 _                   = require 'lodash'
 moment              = require 'moment'
@@ -42,7 +42,11 @@ class Connector extends EventEmitter
       LyncLauncher.stopAutoCheck()
 
   killFeedback: =>
-    child_process.exec 'taskkill /fi "WINDOWTITLE eq Skype for Business"', shell: true
+    options =
+      shell: true
+      stdio: 'inherit'
+    child = spawn 'taskkill /fi "WINDOWTITLE eq Skype for Business"', options
+    child.unref()
 
   startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>

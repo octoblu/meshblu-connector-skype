@@ -1,6 +1,6 @@
 ps = require 'ps-node'
 _  = require 'lodash'
-exec = require('child_process').exec
+{spawn} = require('child_process')
 
 intervalId = null
 
@@ -14,7 +14,13 @@ stopAutoCheck = () =>
 
 _checkLync = () =>
   ps.lookup {command: 'lync'}, (error, result) =>
-    exec('cd C:\\ && start lync.exe', shell: true, (err, stdout, stderr) => {}) if _.isEmpty result
+    return unless _.isEmpty result
+    options =
+      shell: true
+      stdio: 'inherit'
+
+    child = spawn 'cd C:\\ && start lync.exe', options
+    child.unref()
 
 module.exports = {
   autoCheck,
