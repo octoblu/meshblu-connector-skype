@@ -14,7 +14,7 @@ stopAutoCheck = () =>
 
 _checkLync = () =>
   ps.lookup {command: 'lync'}, (error, result) =>
-    exec('cd C:\\ && start lync.exe', (err, stdout, stderr) => {}) if _.isEmpty result
+    exec('cd C:\\ && start lync.exe', shell: true, (err, stdout, stderr) => {}) if _.isEmpty result
 
 module.exports = {
   autoCheck,

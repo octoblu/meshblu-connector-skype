@@ -13,7 +13,7 @@ class Connector extends EventEmitter
     @lyncEventEmitter = new LyncEventEmitter()
 
   start: (device, callback) =>
-    @_killFeedbackInterval = setInterval @killFeedback, 1000
+    @_killFeedbackInterval = setInterval @killFeedback, 10000
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
     @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 1000
     LyncDisableFeedback.disable (error) =>
@@ -42,7 +42,7 @@ class Connector extends EventEmitter
       LyncLauncher.stopAutoCheck()
 
   killFeedback: =>
-    child_process.exec 'taskkill /fi "WINDOWTITLE eq Skype for Business"'
+    child_process.exec 'taskkill /fi "WINDOWTITLE eq Skype for Business"', shell: true
 
   startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>
