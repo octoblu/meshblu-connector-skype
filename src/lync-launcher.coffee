@@ -17,7 +17,7 @@ _checkLync = () =>
     return unless _.isEmpty result
     options =
       shell: true
-      stdio: 'inherit'
+      stdio: 'ignore'
       detached: true
 
     child = spawn 'cd C:\\ && start lync.exe', options

@@ -44,7 +44,7 @@ class Connector extends EventEmitter
   killFeedback: =>
     options =
       shell: true
-      stdio: 'inherit'
+      stdio: 'ignore'
       detached: true
     child = spawn 'taskkill /fi "WINDOWTITLE eq Skype for Business"', options
     child.unref()
