@@ -1,4 +1,4 @@
-{spawn}       = require 'child_process'
+wincmd              = require 'node-windows'
 {EventEmitter}      = require 'events'
 _                   = require 'lodash'
 moment              = require 'moment'
@@ -42,12 +42,10 @@ class Connector extends EventEmitter
       LyncLauncher.stopAutoCheck()
 
   killFeedback: =>
-    options =
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
-      shell: true
-      detached: true
-    child = spawn 'taskkill /fi "WINDOWTITLE eq Skype for Business"', options
-    child.unref()
+    wincmd.list (tasks) =>
+      _.each tasks, (task) =>
+        return unless task.WindowTitle == 'Skype for Business'
+        wincmd.kill(task.PID, _.noop)
 
   startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>
