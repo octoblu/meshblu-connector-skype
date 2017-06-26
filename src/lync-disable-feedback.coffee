@@ -8,7 +8,7 @@ disable = (callback) =>
         return callback null
       else
         return callback error
-    fs.unlinkSync skypePath, (error) =>
+    fs.unlink skypePath, (error) =>
       return callback error if error?
       callback null
 
