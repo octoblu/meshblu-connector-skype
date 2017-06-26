@@ -18,6 +18,7 @@ _checkLync = () =>
     options =
       shell: true
       stdio: 'inherit'
+      detached: true
 
     child = spawn 'cd C:\\ && start lync.exe', options
     child.unref()

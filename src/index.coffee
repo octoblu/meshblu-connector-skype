@@ -45,6 +45,7 @@ class Connector extends EventEmitter
     options =
       shell: true
       stdio: 'inherit'
+      detached: true
     child = spawn 'taskkill /fi "WINDOWTITLE eq Skype for Business"', options
     child.unref()
 
