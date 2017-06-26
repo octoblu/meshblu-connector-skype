@@ -16,8 +16,7 @@ _checkLync = () =>
   ps.lookup {command: 'lync'}, (error, result) =>
     return unless _.isEmpty result
     options =
-      shell: true
-      stdio: 'ignore'
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
       detached: true
 
     child = spawn 'cd C:\\ && start lync.exe', options
