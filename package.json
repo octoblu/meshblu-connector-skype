@@ -46,7 +46,6 @@
     "meshblu-connector-cli": "^1.1.4",
     "moment": "^2.18.1",
     "npm-run-all": "^4.0.2",
-    "node-windows": "^0.1.14",
     "ps-node": "^0.1.6"
   },
   "meshbluConnector": {
