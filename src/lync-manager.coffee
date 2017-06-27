@@ -51,6 +51,10 @@ emitEvents = edge.func
   source: path.join process.cwd(), 'assets/csharp/emit-events.cs'
   references: references
 
+killFeedback = edge.func
+  source: path.join process.cwd(), 'assets/csharp/kill-feedback.cs'
+  references: references
+
 module.exports = {
   createMeeting: createMeeting
   joinMeeting: joinMeeting
@@ -62,4 +66,5 @@ module.exports = {
   getConferenceUri: getConferenceUri
   getState: getState
   emitEvents: emitEvents
+  killFeedback: killFeedback
 }

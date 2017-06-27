@@ -1,10 +1,9 @@
-wincmd              = require 'node-windows'
 {EventEmitter}      = require 'events'
 _                   = require 'lodash'
 moment              = require 'moment'
 debug               = require('debug')('meshblu-connector-skype:index')
 LyncEventEmitter    = require './lync-event-emitter'
-# LyncLauncher        = require './lync-launcher'
+LyncLauncher        = require './lync-launcher'
 LyncDisableFeedback = require './lync-disable-feedback'
 
 class Connector extends EventEmitter
@@ -36,16 +35,14 @@ class Connector extends EventEmitter
     @updateDesiredState {}
     @truthAndReconcilliation()
 
-    # if autoLaunchSkype == true
-    #   LyncLauncher.autoCheck()
-    # else
-    #   LyncLauncher.stopAutoCheck()
+    if autoLaunchSkype == true
+      LyncLauncher.autoCheck()
+    else
+      LyncLauncher.stopAutoCheck()
 
   killFeedback: =>
-    wincmd.list (tasks) =>
-      _.each tasks, (task) =>
-        return unless task.WindowTitle == 'Skype for Business'
-        wincmd.kill(task.PID, _.noop)
+    @Lync.killFeedback (error) =>
+      console.error '@Lync.killFeedback', error.stack if error?
 
   startMeeting: ({audioEnabled, videoEnabled}, callback) =>
     finishStartMeetingHandler = (conversations) =>
