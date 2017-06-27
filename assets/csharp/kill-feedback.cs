@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 public class Startup
 {
-  public async Task<object> Invoke(string ignored)
+  public async Task<object> Invoke(dynamic ignored)
   {
     Process[] processes = Process.GetProcesses();
 
@@ -17,6 +17,6 @@ public class Startup
        }
     }
 
-    return "DED";
+    return null;
   }
 }
