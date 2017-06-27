@@ -59,7 +59,7 @@ public class Startup
     }
   }
 
-  public async Task<object> Invoke(string ignored)
+  public async Task<object> Invoke(dynamic ignored)
   {
     var client = getClientOrNull();
 

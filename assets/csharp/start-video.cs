@@ -16,7 +16,7 @@ public class Startup
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
   }
 
-  public async Task<object> Invoke(object ignored)
+  public async Task<object> Invoke(dynamic ignored)
   {
     var conversation = GetConversation();
     var avModality = ((AVModality)conversation.Modalities[ModalityTypes.AudioVideo]);

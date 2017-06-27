@@ -22,7 +22,7 @@ public class Startup
     return;
   }
 
-  public async Task<object> Invoke(string ignored)
+  public async Task<object> Invoke(dynamic ignored)
   {
     foreach(Conversation conversation in LyncClient.GetClient().ConversationManager.Conversations) {
       await stopConversation(conversation);

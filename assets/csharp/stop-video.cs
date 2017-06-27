@@ -59,7 +59,7 @@ public class Startup
     return tcs.Task;
   }
 
-  public async Task<object> Invoke(string ignored)
+  public async Task<object> Invoke(dynamic ignored)
   {
     var videoChannel = await GetVideoChannel();
     if (videoChannel.State == ChannelState.Connecting) await waitTillConnected(videoChannel);

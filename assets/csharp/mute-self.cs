@@ -15,7 +15,7 @@ public class Startup
     return LyncClient.GetClient().ConversationManager.Conversations.FirstOrDefault();
   }
 
-  public async Task<object> Invoke(string ignored)
+  public async Task<object> Invoke(dynamic ignored)
   {
     Conversation conversation = GetConversation();
     if (conversation == null) return null;
