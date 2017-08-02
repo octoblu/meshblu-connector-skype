@@ -1,7 +1,7 @@
 ps = require 'ps-node'
 _  = require 'lodash'
 exec = require('child_process').exec
-LyncManager = require './lync-manager.coffee'
+LyncManager = require './lync-manager'
 
 intervalId = null
 
