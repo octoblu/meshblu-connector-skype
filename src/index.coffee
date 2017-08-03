@@ -35,6 +35,7 @@ class Connector extends EventEmitter
     @updateDesiredState {}
     @truthAndReconcilliation()
 
+    debug 'autoLaunchSkype', autoLaunchSkype
     if autoLaunchSkype == true
       LyncLauncher.autoCheck()
     else
