@@ -31,3 +31,4 @@ schemas.json
 log/
 tmp/
 lib/
+pkg-config.json
