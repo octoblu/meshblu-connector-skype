@@ -1,6 +1,6 @@
 ps = require 'ps-node'
 _  = require 'lodash'
-exec = require('child_process').exec
+spawn = require('child_process').spawn
 LyncManager = require './lync-manager'
 
 intervalId = null
@@ -16,7 +16,13 @@ stopAutoCheck = () =>
 _checkLync = () =>
   LyncManager.getState null, (error, state) =>
     if !state.hasClient
-      exec 'cd C:\\ && start lync.exe'
+      options =
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+      shell: true
+      detached: true
+
+      child = spawn 'cd C:\\ && start lync.exe', options
+      child.unref()
 
 module.exports = {
   autoCheck,
