@@ -1,5 +1,3 @@
-ps = require 'ps-node'
-_  = require 'lodash'
 spawn = require('child_process').spawn
 LyncManager = require './lync-manager'
 
