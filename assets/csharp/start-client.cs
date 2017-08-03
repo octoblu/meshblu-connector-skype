@@ -17,7 +17,7 @@ public class Startup {
 
   public IEnumerable<string> paths = installPaths.Select(p => Path.Combine(programFiles, p));
 
-  public async Task<object> StartClient(dynamic ignored) {
+  public async Task<object> Invoke(dynamic ignored) {
     try {
       var client = paths.First(File.Exists);
       Process.Start(client);
