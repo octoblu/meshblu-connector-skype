@@ -1,28 +1,22 @@
-spawn = require('child_process').spawn
-LyncManager = require './lync-manager'
+LyncManager   = require './lync-manager'
+stopped       = false
+INTERVAL_TIME = 20000
 
-intervalId = null
+autoCheck = =>
+  return if stopped
+  _checkLync (error) =>
+    console.error 'lync error', error if error?
+    setTimeout autoCheck, INTERVAL_TIME
 
-autoCheck = (intervalTime=20000) =>
-  if !intervalId
-    intervalId = setInterval _checkLync, intervalTime
+stopAutoCheck = =>
+  stopped = true
 
-stopAutoCheck = () =>
-  if intervalId
-    intervalId = clearInterval intervalId
-
-_checkLync = () =>
+_checkLync = (callback) =>
   LyncManager.getState null, (error, state) =>
-    if !state.hasClient
-      options =
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
-      shell: true
-      detached: true
+    return callback error if error?
+    return callback() if state.hasClient
+    LyncManager.startClient null, (error) =>
+      return callback error if error?
+      callback()
 
-      child = spawn 'cd C:\\ && start lync.exe', options
-      child.unref()
-
-module.exports = {
-  autoCheck,
-  stopAutoCheck
-}
+module.exports = { autoCheck, stopAutoCheck }

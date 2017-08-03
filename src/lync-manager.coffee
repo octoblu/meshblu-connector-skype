@@ -47,6 +47,10 @@ getState = edge.func
   source: path.join process.cwd(), 'assets/csharp/get-state.cs'
   references: references
 
+startClient = edge.func
+  source: path.join process.cwd(), 'assets/csharp/start-client.cs'
+  references: references
+
 emitEvents = edge.func
   source: path.join process.cwd(), 'assets/csharp/emit-events.cs'
   references: references
@@ -56,15 +60,16 @@ killFeedback = edge.func
   references: references
 
 module.exports = {
-  createMeeting: createMeeting
-  joinMeeting: joinMeeting
-  startVideo: startVideo
-  stopVideo: stopVideo
-  stopMeetings: stopMeetings
-  mute: mute
-  unmute: unmute
-  getConferenceUri: getConferenceUri
-  getState: getState
-  emitEvents: emitEvents
-  killFeedback: killFeedback
+  createMeeting,
+  joinMeeting,
+  startVideo,
+  stopVideo,
+  stopMeetings,
+  mute,
+  unmute,
+  getConferenceUri,
+  getState,
+  emitEvents,
+  killFeedback,
+  startClient,
 }
