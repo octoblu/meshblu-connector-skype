@@ -29,17 +29,17 @@ class Connector extends EventEmitter
 
   onConfig: ({desiredState, autoLaunchSkype}={}, callback) =>
     callback()
-    @Lync.emitEvents @lyncEventEmitter.handle
-    return if _.isEmpty desiredState
-    @desiredState = desiredState
-    @updateDesiredState {}
-    @truthAndReconcilliation()
-
     debug 'autoLaunchSkype', autoLaunchSkype
     if autoLaunchSkype == true
       LyncLauncher.autoCheck()
     else
       LyncLauncher.stopAutoCheck()
+
+    @Lync.emitEvents @lyncEventEmitter.handle
+    return if _.isEmpty desiredState
+    @desiredState = desiredState
+    @updateDesiredState {}
+    @truthAndReconcilliation()
 
   killFeedback: =>
     @Lync.killFeedback (error) =>
