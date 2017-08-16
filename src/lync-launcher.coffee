@@ -1,17 +1,17 @@
 LyncManager   = require './lync-manager'
 debug         = require('debug')('meshblu-connector-skype:lync-launcher')
-stopped       = false
 INTERVAL_TIME = 20000
+autoCheckTimeout = null
 
 autoCheck = =>
-  return stopped = false if stopped
+  clearTimeout(autoCheckTimeout) if autoCheckTimeout?
   _checkLync (error) =>
     console.error 'LyncLauncher->autoCheck', { error } if error?
-    setTimeout autoCheck, INTERVAL_TIME
+    autoCheckTimeout = setTimeout autoCheck, INTERVAL_TIME
 
 stopAutoCheck = =>
   debug 'stopAuthCheck'
-  stopped = true
+  clearTimeout(autoCheckTimeout)
 
 _checkLync = (callback) =>
   debug 'checkLync'

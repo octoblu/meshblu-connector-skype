@@ -15,6 +15,7 @@ class Connector extends EventEmitter
     @_killFeedbackInterval = setInterval @killFeedback, 10000
     @lyncEventEmitter.on 'config', @truthAndReconcilliation
     @lyncEventEmitter.on 'config', _.throttle (=> @_refreshCurrentState()), 1000
+    @Lync.emitEvents @lyncEventEmitter.handle
     LyncDisableFeedback.disable (error) =>
       return callback error if error?
     # @lyncEventEmitter.on 'config', (config) => console.log JSON.stringify config, null, 2
@@ -30,12 +31,9 @@ class Connector extends EventEmitter
   onConfig: ({desiredState, autoLaunchSkype}={}, callback) =>
     callback()
     debug 'autoLaunchSkype', autoLaunchSkype
-    if autoLaunchSkype == true
-      LyncLauncher.autoCheck()
-    else
-      LyncLauncher.stopAutoCheck()
+    LyncLauncher.stopAutoCheck()
+    LyncLauncher.autoCheck() if autoLaunchSkype
 
-    @Lync.emitEvents @lyncEventEmitter.handle
     return if _.isEmpty desiredState
     @desiredState = desiredState
     @updateDesiredState {}
