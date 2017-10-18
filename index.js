@@ -1,3 +1,2 @@
-"use strict"
-
-module.exports = require('./lib/index')
+require("coffee-script/register")
+module.exports = require('./index.coffee')
