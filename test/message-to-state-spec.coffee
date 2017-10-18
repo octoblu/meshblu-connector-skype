@@ -1,5 +1,5 @@
 {sinon, describe, it, expect, beforeEach} = global
-MessageToState = require '../src/message-to-state'
+MessageToState = require '..'
 
 describe 'when we create a new MessageToState', ->
   beforeEach 'setup state manager', ->
