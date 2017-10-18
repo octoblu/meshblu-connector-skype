@@ -26,7 +26,7 @@ class Connector extends EventEmitter
     clearInterval @_killFeedbackInterval
     return callback()
 
-  onConfig: ({desiredState, autoLaunchSkype}={}, callback) =>
+  onConfig: ({desiredState, autoLaunchSkype}={}, callback=->) =>
     callback()
     debug 'autoLaunchSkype', autoLaunchSkype
     LyncLauncher.stopAutoCheck()
