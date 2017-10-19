@@ -1,5 +1,5 @@
 _             = require 'lodash'
-StateManager  = './index'
+StateManager  = require './index'
 
 StartSkypeState =
   desiredState:
