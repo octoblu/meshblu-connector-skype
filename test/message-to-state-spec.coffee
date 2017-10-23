@@ -35,6 +35,7 @@ describe 'when we create a new MessageToState', ->
           audioEnabled: true
           meeting:
             url: null
+        autoLaunchSkype: true
 
       expect(@stateManager.onConfig).to.have.been.calledWith state
 
@@ -46,5 +47,8 @@ describe 'when we create a new MessageToState', ->
       @sut.onMessage startSkypeMessage
 
     it 'should call onConfig on the stateManager with the correct desiredState', ->
-      state = desiredState: meeting: null
+      state =
+        desiredState: meeting: null
+        autoLaunchSkype: true
+
       expect(@stateManager.onConfig).to.have.been.calledWith state

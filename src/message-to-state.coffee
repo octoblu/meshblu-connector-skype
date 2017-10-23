@@ -7,10 +7,11 @@ StartSkypeState =
     audioEnabled: true
     meeting:
       url: null
+  autoLaunchSkype: true
 
 EndSkypeState =
-  desiredState:
-    meeting: null
+  desiredState: meeting: null
+  autoLaunchSkype: true
 
 class MessageToState
   constructor: ({@stateManager}={}) ->
