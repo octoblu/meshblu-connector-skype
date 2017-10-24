@@ -52,3 +52,12 @@ describe 'when we create a new MessageToState', ->
         autoLaunchSkype: true
 
       expect(@stateManager.onConfig).to.have.been.calledWith state
+
+  describe 'when autoLaunchSkype is called', ->
+    beforeEach ->
+      @sut.autoLaunchSkype()
+
+    it 'should call onConfig on the stateManager with the correct desiredState', ->
+      state = autoLaunchSkype: true
+
+      expect(@stateManager.onConfig).to.have.been.calledWith state

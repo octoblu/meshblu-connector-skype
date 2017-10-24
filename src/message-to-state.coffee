@@ -26,4 +26,7 @@ class MessageToState
     return @stateManager.onConfig EndSkypeState if jobType == 'end-skype'
     return console.log "I don't know what this message means: #{jobType}"
 
+  autoLaunchSkype: () =>
+    @stateManager.onConfig autoLaunchSkype: true
+
 module.exports = MessageToState
