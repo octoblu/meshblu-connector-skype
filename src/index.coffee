@@ -7,7 +7,7 @@ LyncLauncher        = require './lync-launcher'
 LyncDisableFeedback = require './lync-disable-feedback'
 
 class Connector extends EventEmitter
-  constructor: ({@Lync}) ->
+  constructor: ({@Lync}={}) ->
     @Lync ?= require('./lync-manager')
     @lyncEventEmitter = new LyncEventEmitter()
 
