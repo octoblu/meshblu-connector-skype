@@ -34,7 +34,7 @@ class Connector extends EventEmitter
 
     return if _.isEmpty desiredState
     @Lync.emitEvents @lyncEventEmitter.handle
-    @desiredState = desiredState
+    @desiredState = _.cloneDeep desiredState
     @updateDesiredState {}
     @truthAndReconcilliation()
 
