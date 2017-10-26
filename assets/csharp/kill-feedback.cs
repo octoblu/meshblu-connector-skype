@@ -8,6 +8,7 @@ public class Startup
 {
   public async Task<object> Invoke(dynamic ignored)
   {
+    return null;
     Process[] processes = Process.GetProcesses();
 
     foreach (Process process in processes)
