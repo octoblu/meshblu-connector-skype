@@ -6,6 +6,7 @@ describe 'when we create a new MessageToState', ->
     @stateManager = {
       start: sinon.stub()
       onConfig: sinon.stub()
+      on: sinon.stub()
     }
 
   beforeEach ->
@@ -19,13 +20,16 @@ describe 'when we create a new MessageToState', ->
       @callback = ->
       @sut.start @callback
     it 'should call start on stateManager with an empty device and a callback', ->
-      expect(@stateManager.start).to.have.been.calledWith {}, @callback
+      expect(@stateManager.start).to.have.been.calledWith {autoLaunchSkype: true}, @callback
 
   describe 'when called with a start-skype message', ->
     beforeEach ->
       startSkypeMessage =
         metadata:
-          jobType: 'start-skype'
+          type: 'message'
+        data:
+          metadata:
+            jobType: 'start-skype'
       @sut.onMessage startSkypeMessage
 
     it 'should call onConfig on the stateManager with the correct desiredState', ->
@@ -43,7 +47,10 @@ describe 'when we create a new MessageToState', ->
     beforeEach ->
       startSkypeMessage =
         metadata:
-          jobType: 'end-skype'
+          type: 'message'
+        data:
+          metadata:
+            jobType: 'end-skype'
       @sut.onMessage startSkypeMessage
 
     it 'should call onConfig on the stateManager with the correct desiredState', ->
