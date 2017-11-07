@@ -8,7 +8,8 @@ LyncDisableFeedback = require './lync-disable-feedback'
 
 class Connector extends EventEmitter
   constructor: ({@Lync}={}) ->
-    @Lync ?= require('./lync-manager')
+    LyncManager = require('./lync-manager')
+    @Lync = new LyncManager { dirname: process.env.MESHBLU_CONNECTOR_EDGE_ASSETS_DIR }
     @lyncEventEmitter = new LyncEventEmitter()
 
   start: (device, callback) =>

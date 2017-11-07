@@ -15,11 +15,12 @@ stopAutoCheck = =>
 
 _checkLync = (callback) =>
   debug 'checkLync'
-  LyncManager.getState null, (error, state) =>
+  lyncManager = new LyncManager {dirname: process.env.MESHBLU_CONNECTOR_EDGE_ASSETS_DIR}
+  lyncManager.getState null, (error, state) =>
     debug 'lyncManager.getState', JSON.stringify { error, state }, null, 2
     return callback error if error?
     return callback() if state.hasClient
-    LyncManager.startClient null, (error) =>
+    lyncManager.startClient null, (error) =>
       debug 'lyncManager.startClient', JSON.stringify { error }, null, 2
       return callback error if error?
       callback()
