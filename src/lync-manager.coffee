@@ -2,7 +2,7 @@ path = require 'path'
 isEmpty = require("lodash/isEmpty")
 
 class LyncManager
-  constructor({ dirname }={}) ->
+  constructor: ({ dirname }={}) ->
     edge = require 'edge' # don't require edge until the constructor is called, needed for EDGE_CS env vars
     if isEmpty(dirname)
       dirname = path.join(__dirname, '..')
