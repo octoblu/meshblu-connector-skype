@@ -24,6 +24,8 @@ class MessageToState extends EventEmitter
     @stateManager.start {autoLaunchSkype: true}, callback
 
   onMessage: (message) =>
+    type = message.metadata.route[0].type
+    return @onConfig(message) if type == 'configure.sent'
     message = message.data
     jobType = _.get(message, 'metadata.jobType')
     debug("message received", JSON.stringify({ message, jobType }, null, 2))
