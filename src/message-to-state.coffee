@@ -1,6 +1,8 @@
 _             = require 'lodash'
 StateManager  = require './index'
 {EventEmitter} = require 'events'
+debug = require("debug")("meshblu-connector-skype:message-to-state")
+
 StartSkypeState =
   desiredState:
     videoEnabled: true
@@ -24,8 +26,11 @@ class MessageToState extends EventEmitter
   onMessage: (message) =>
     message = message.data
     jobType = _.get(message, 'metadata.jobType')
-    return @stateManager.onConfig _.cloneDeep(StartSkypeState) if jobType == 'start-skype'
-    return @stateManager.onConfig _.cloneDeep(EndSkypeState) if jobType == 'end-skype'
+    debug("message received", JSON.stringify({ message, jobType }, null, 2))
+    config = _.cloneDeep(StartSkypeState) if jobType == 'start-skype'
+    config = _.cloneDeep(EndSkypeState) if jobType == 'end-skype'
+    debug("sending config": JSON.stringify(config,null,2))
+    return @stateManager.onConfig config if config?
     return console.log "I don't know what this message means: #{jobType}"
 
   onConfig: (config) =>

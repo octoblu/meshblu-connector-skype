@@ -30,6 +30,7 @@ class Connector extends EventEmitter
   onConfig: ({desiredState, autoLaunchSkype}={}, callback=->) =>
     callback()
     debug 'autoLaunchSkype', autoLaunchSkype
+    debug 'desiredState', JSON.stringify(desiredState, null, 2)
     LyncLauncher.stopAutoCheck()
     LyncLauncher.autoCheck() if autoLaunchSkype
 
